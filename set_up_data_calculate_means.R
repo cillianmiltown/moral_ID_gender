@@ -234,4 +234,5 @@ alpha(risk_perception_tot)
 
 df$risk_perception_tot <- rowMeans(risk_perception_tot, na.rm = TRUE)
 
+write.csv(df, "data/data_with_means.csv", row.names = FALSE)
 save(df, file = "data/data_with_means.RData")
