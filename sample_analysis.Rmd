@@ -1,0 +1,419 @@
+---
+title: "Who Cares about Morality"
+author: "Mariola Paruzel-Czachura, Cillian McHugh"
+date: "27th June 2022"
+bibliography: "resources/bib/My Library.bib"
+csl: "resources/bib/apa.csl"
+output:
+  bookdown::html_document2:
+    fig_caption: yes
+    toc: true
+    toc_float:
+      toc_collapsed: false
+    toc_depth: 4
+    number_sections: false
+editor_options: 
+  chunk_output_type: console
+---
+
+<style>
+  .superbigimage{
+      overflow-x:scroll;
+      white-space: nowrap;
+  }
+
+  .superbigimage img{
+     max-width: none;
+  }
+
+
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(include = FALSE)
+```
+
+
+```{r}
+rm(list = ls())
+library(tidyverse)
+library(plyr)
+library(psych)
+library(skimr)
+library(corrplot)
+library(Hmisc)
+#library(psy)
+library(afex)
+#devtools::install_github("cillianmiltown/R_desnum")
+library(desnum)
+library(papaja)
+library(purrr)
+#install.packages("interactions")
+library(interactions)
+library(kableExtra)
+#devtools::install_github("crsh/papaja")
+library("papaja")
+library(lme4)
+library(car)
+library(ggplot2)
+library(nlme)
+#install.packages("reshape")
+library(reshape)
+library(corx)
+library(lsr)
+#install.packages("Cairo")
+#library(Cairo)
+library(foreign)
+library(ltm)
+library("ggpubr")
+#install.packages("rworldmap")
+library(rworldmap)
+#devtools::install_github("rensa/ggflags")
+library(ggflags)
+#devtools::install_github("schliebs/ggoxford")
+library(ggoxford)
+library(ggforce)
+```
+
+```{r}
+
+#source("set_up_data_calculate_means.R")
+load("data/data_with_means.RData")
+
+df$sex3 <- as.factor(df$sex1)
+df$sex3 <- dplyr::recode(df$sex3,
+               "1"="male"
+              ,"2"="female"
+              ,"3"="other")
+
+df$country_lower <- tolower(df$country)
+
+```
+
+
+# Overview
+
+# Testing for Country Effects
+
+## Internalization
+
+
+```{r}
+
+# start building the model
+## first test if country should be included
+
+# no country
+interceptOnly <-gls(moral_identity_internal ~ 1
+                    , data = df
+                    , method = "ML"
+                    , na.action = na.exclude)
+summary(interceptOnly)
+
+# country included
+randomInterceptOnly <-lme(moral_identity_internal ~ 1
+                          , data = df
+                          , random = ~1|country
+                          , method = "ML"
+                          , na.action = na.exclude)
+summary(randomInterceptOnly)
+
+LL_d <- logLik(interceptOnly)*-2 - logLik(randomInterceptOnly)*-2
+aov <- anova(interceptOnly, randomInterceptOnly)
+country_p <- aov$`p-value`[2]
+
+
+
+```
+
+
+Initial testing revealed that for Internalization, allowing intercepts to vary with Country significantly improved the predictive power of the model $\chi$^2^(`r round(aov$df[2]-aov$df[1], digits=2)`) = `r round(aov$L.Ratio[2],digits=2)`, *p* `r paste(p_report(country_p))`.
+
+```{r}
+test <- 
+  do.call(
+    rbind,
+    tapply(df$moral_identity_internal, df$ISO3, descriptives)
+    )
+
+descriptives(df$moral_identity_internal)
+
+test[order(-test$mean), ]
+country_order <- rownames(test[order(-test$mean), ])
+```
+
+```{r, internalizationCountry, include=TRUE}
+apa_table(
+  test
+  , caption = "Internalization basic descriptives by Country")
+```
+
+
+```{r}
+# https://www.r-bloggers.com/2019/03/all-around-the-world-maps-and-flags-in-r/
+df$flag_location <- rep(-1)
+
+test1 <- test[order(-test$mean), ]
+test1$country1 <- rownames(test1)
+test1$position <- c(11:(10+length(test1$country1)))
+test1$ISO3 <- test1$country1
+test1$position_country <- paste0(test1$position,test1$country1)
+df1 <- left_join(df, test1, by = "ISO3")
+```
+
+```{r}
+
+g <- ggplot(df1,aes(x=position_country,y=moral_identity_internal))+
+  #geom_violin() +
+  stat_summary(fun=mean, geom="point", shape=23, size=2)+
+  geom_boxplot(width=0.1, outlier.shape = NA)+
+  xlab("Country")+
+  ylab("Internalization")+
+  geom_jitter(shape=16, position=position_jitter(0.15), size=.1, color="dark grey")+
+  geom_axis_flags(breaks = df1$position_country,
+                   labels = df1$ISO3,
+                   country_icons = df1$ISO3,
+                   axis = "x",
+                    width = 20,
+                   # lineheight = 2,
+                   # fontface = "bold"
+  )
+```
+
+
+<div class=superbigimage>
+```{r, meanInternalization,include=TRUE,fig.width=20,fig.height=6}
+suppressWarnings(print(g))
+
+```
+
+</div>
+## Symbolization
+
+
+```{r}
+
+# start building the model
+## first test if country should be included
+
+# no country
+interceptOnly <-gls(moral_identity_symbolic ~ 1
+                    , data = df
+                    , method = "ML"
+                    , na.action = na.exclude)
+summary(interceptOnly)
+
+# country included
+randomInterceptOnly <-lme(moral_identity_symbolic ~ 1
+                          , data = df
+                          , random = ~1|country
+                          , method = "ML"
+                          , na.action = na.exclude)
+summary(randomInterceptOnly)
+
+LL_d <- logLik(interceptOnly)*-2 - logLik(randomInterceptOnly)*-2
+aov <- anova(interceptOnly, randomInterceptOnly)
+country_p <- aov$`p-value`[2]
+
+
+
+```
+
+
+
+Initial testing revealed that for Symbolization, allowing intercepts to vary with Country significantly improved the predictive power of the model $\chi$^2^(`r round(aov$df[2]-aov$df[1], digits=2)`) = `r round(aov$L.Ratio[2],digits=2)`, *p* `r paste(p_report(country_p))`.
+
+
+
+```{r}
+test <- 
+  do.call(
+    rbind,
+    tapply(df$moral_identity_symbolic, df$ISO3, descriptives)
+    )
+
+descriptives(df$moral_identity_symbolic)
+
+test[order(-test$mean), ]
+country_order <- rownames(test[order(-test$mean), ])
+```
+
+```{r, symbolizationCountry, include=TRUE}
+apa_table(
+  test
+  , caption = "Symbolization basic descriptives by Country")
+```
+
+
+```{r}
+# https://www.r-bloggers.com/2019/03/all-around-the-world-maps-and-flags-in-r/
+df$flag_location <- rep(-1)
+
+test1 <- test[order(-test$mean), ]
+test1$country1 <- rownames(test1)
+test1$position <- c(11:(10+length(test1$country1)))
+test1$ISO3 <- test1$country1
+test1$position_country <- paste0(test1$position,test1$country1)
+df1 <- left_join(df, test1, by = "ISO3")
+```
+
+```{r}
+
+g <- ggplot(df1,aes(x=position_country,y=moral_identity_symbolic))+
+  #geom_violin() +
+  stat_summary(fun=mean, geom="point", shape=23, size=2)+
+  geom_boxplot(width=0.1, outlier.shape = NA)+
+  xlab("Country")+
+  ylab("Symbolization")+
+  geom_jitter(shape=16, position=position_jitter(0.15), size=.1, color="dark grey")+
+  geom_axis_flags(breaks = df1$position_country,
+                   labels = df1$ISO3,
+                   country_icons = df1$ISO3,
+                   axis = "x",
+                    width = 20,
+                   # lineheight = 2,
+                   # fontface = "bold"
+  )
+```
+
+
+<div class=superbigimage>
+```{r, meanSymbolization,include=TRUE,fig.width=20,fig.height=6}
+suppressWarnings(print(g))
+
+```
+
+</div>
+
+# Gender Differences
+
+```{r}
+test <- 
+  do.call(
+    rbind,
+    tapply(df$moral_identity_internal, df$sex3, descriptives)
+    )
+
+descriptives(df$moral_identity_internal)
+
+test[order(-test$mean), ]
+country_order <- rownames(test[order(-test$mean), ])
+```
+
+```{r, internalizationgender, include=TRUE}
+apa_table(
+  test
+  , caption = "Internalization basic descriptives by Gender")
+```
+
+
+
+```{r}
+df1 <- df
+g <- ggplot(df1,aes(x=sex3,y=moral_identity_internal))+
+  geom_violin() +
+  #ggforce::geom_sina(size=.01)+
+  stat_summary(fun=mean, geom="point", shape=23, size=2)+
+  geom_boxplot(width=0.1, outlier.shape = NA)+
+  xlab("Gender")+
+  ylab("Internalization")+  
+  geom_jitter(shape=16, position=position_jitter(height = .5, width = .45), size=.01, color="dark grey")
+  
+g
+```
+
+
+```{r, meanInternalizationGender,include=TRUE}
+suppressWarnings(print(g))
+
+```
+
+
+```{r}
+test <- 
+  do.call(
+    rbind,
+    tapply(df$moral_identity_symbolic, df$sex3, descriptives)
+    )
+
+descriptives(df$moral_identity_symbolic)
+
+test[order(-test$mean), ]
+country_order <- rownames(test[order(-test$mean), ])
+```
+
+```{r, symbolizationgender, include=TRUE}
+apa_table(
+  test
+  , caption = "Symbolization basic descriptives by Gender")
+```
+
+
+
+```{r}
+df1 <- df
+g <- ggplot(df1,aes(x=sex3,y=moral_identity_symbolic))+
+  geom_violin() +
+  #ggforce::geom_sina(size=.01)+
+  stat_summary(fun=mean, geom="point", shape=23, size=2)+
+  geom_boxplot(width=0.1, outlier.shape = NA)+
+  xlab("Gender")+
+  ylab("Symbolization")+  
+  geom_jitter(shape=16, position=position_jitter(height = .5, width = .45), size=.01, color="dark grey")
+  
+g
+```
+
+
+```{r, meanSymbolizationGender,include=TRUE}
+suppressWarnings(print(g))
+
+```
+
+
+# Predictors
+
+## Internalization
+```{r}
+x <- df[which(df$sex3=="male"|df$sex3=="female"),]
+```
+
+
+```{r, include=TRUE, echo=TRUE}
+
+
+model1 <- lmerTest::lmer(moral_identity_internal ~
+                    sex3
+                  * age
+                  + (1|country)
+                , data = x
+                , contrasts = list(sex3 = contr.sum, valence = contr.sum )
+            )
+summary(model1)
+anova(model1)
+
+```
+
+
+## Symbolization
+```{r}
+x <- df[which(df$sex3=="male"|df$sex3=="female"),]
+```
+
+
+```{r, include=TRUE, echo=TRUE}
+
+
+model1 <- lmerTest::lmer(moral_identity_symbolic ~
+                    sex3
+                  * age
+                  + (1|country)
+                , data = x
+                , contrasts = list(sex3 = contr.sum, valence = contr.sum )
+            )
+summary(model1)
+anova(model1)
+
+```
+
