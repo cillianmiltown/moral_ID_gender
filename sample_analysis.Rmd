@@ -1,7 +1,7 @@
 ---
 title: "Who Cares about Morality"
 author: "Mariola Paruzel-Czachura, Cillian McHugh"
-date: "27th June 2022"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 bibliography: "resources/bib/My Library.bib"
 csl: "resources/bib/apa.csl"
 output:
@@ -193,28 +193,28 @@ suppressWarnings(print(g))
 
 
 ```{r}
-
-# start building the model
-## first test if country should be included
-
-# no country
-interceptOnly <-gls(moral_identity_symbolic ~ 1
-                    , data = df
-                    , method = "ML"
-                    , na.action = na.exclude)
-summary(interceptOnly)
-
-# country included
-randomInterceptOnly <-lme(moral_identity_symbolic ~ 1
-                          , data = df
-                          , random = ~1|country
-                          , method = "ML"
-                          , na.action = na.exclude)
-summary(randomInterceptOnly)
-
-LL_d <- logLik(interceptOnly)*-2 - logLik(randomInterceptOnly)*-2
-aov <- anova(interceptOnly, randomInterceptOnly)
-country_p <- aov$`p-value`[2]
+# 
+# # start building the model
+# ## first test if country should be included
+# 
+# # no country
+# interceptOnly <-gls(moral_identity_symbolic ~ 1
+#                     , data = df
+#                     , method = "ML"
+#                     , na.action = na.exclude)
+# summary(interceptOnly)
+# 
+# # country included
+# randomInterceptOnly <-lme(moral_identity_symbolic ~ 1
+#                           , data = df
+#                           , random = ~1|country
+#                           , method = "ML"
+#                           , na.action = na.exclude)
+# summary(randomInterceptOnly)
+# 
+# LL_d <- logLik(interceptOnly)*-2 - logLik(randomInterceptOnly)*-2
+# aov <- anova(interceptOnly, randomInterceptOnly)
+# country_p <- aov$`p-value`[2]
 
 
 
@@ -372,11 +372,13 @@ suppressWarnings(print(g))
 ```
 
 
-# Predictors
+# Predictors (Individual Level Only)
 
 ## Internalization
 ```{r}
 x <- df[which(df$sex3=="male"|df$sex3=="female"),]
+x$sex3 <- droplevels(x$sex3)
+
 ```
 
 
@@ -399,6 +401,7 @@ anova(model1)
 ## Symbolization
 ```{r}
 x <- df[which(df$sex3=="male"|df$sex3=="female"),]
+x$sex3 <- droplevels(x$sex3)
 ```
 
 
@@ -417,3 +420,369 @@ anova(model1)
 
 ```
 
+
+# Predictors (Cultural Variables Included)
+
+## Internalization
+```{r}
+x <- df[which(df$sex3=="male"|df$sex3=="female"),]
+x$sex3 <- droplevels(x$sex3)
+```
+
+
+```{r, include=TRUE, echo=TRUE}
+
+
+model1 <- lmerTest::lmer(moral_identity_internal ~
+                    sex3
+                    * (age
+                    + Power.Distance
+                    + Individualism
+                    + Masculinity
+                    + Uncertainty.Avoidance
+                    + Long.Term.Orientation
+                    + Indulgence
+                    + CTL_C
+                    + CTL_DS
+                    + CTL_DG)
+                  + (1|country)
+                , data = x
+                , contrasts = list(sex3 = contr.sum, valence = contr.sum )
+            )
+summary(model1)
+anova(model1)
+
+```
+
+#### (Regular Regression)
+
+We also ran a regression without allowing slopes to vary by country. Results are below:
+
+```{r, include=TRUE, echo=TRUE}
+
+fit <- lm(moral_identity_internal ~
+                    sex3
+                    + age
+                    + Power.Distance
+                    + Individualism
+                    + Masculinity
+                    + Uncertainty.Avoidance
+                    + Long.Term.Orientation
+                    + Indulgence
+                    + CTL_C
+                    + CTL_DS
+                    + CTL_DG
+                , data = x
+            )
+
+summary(fit)
+
+```
+
+
+## Symbolization
+```{r}
+x <- df[which(df$sex3=="male"|df$sex3=="female"),]
+x$sex3 <- droplevels(x$sex3)
+```
+
+
+```{r, include=TRUE, echo=TRUE}
+
+
+model1 <- lmerTest::lmer(moral_identity_symbolic ~
+                    sex3
+                    * (age
+                    + Power.Distance
+                    + Individualism
+                    + Masculinity
+                    + Uncertainty.Avoidance
+                    + Long.Term.Orientation
+                    + Indulgence
+                    + CTL_C
+                    + CTL_DS
+                    + CTL_DG)
+                  + (1|country)
+                , data = x
+                , contrasts = list(sex3 = contr.sum, valence = contr.sum )
+            )
+summary(model1)
+anova(model1)
+
+```
+
+#### (Regular Regression)
+
+We also ran a regression without allowing slopes to vary by country. Results are below:
+
+```{r, include=TRUE, echo=TRUE}
+
+fit <- lm(moral_identity_symbolic ~
+                    sex3
+                    + age
+                    + Power.Distance
+                    + Individualism
+                    + Masculinity
+                    + Uncertainty.Avoidance
+                    + Long.Term.Orientation
+                    + Indulgence
+                    + CTL_C
+                    + CTL_DS
+                    + CTL_DG
+                , data = x
+            )
+
+summary(fit)
+
+
+```
+
+
+
+# Men and Women Separately
+
+## Men
+### Internalization
+```{r}
+x <- df[
+  which(
+    df$sex3=="male"
+        # |
+        #   df$sex3=="female"
+          ),]
+
+x$sex3 <- droplevels(x$sex3)
+```
+
+
+```{r, include=TRUE, echo=TRUE}
+
+
+model1 <- lmerTest::lmer(moral_identity_internal ~
+                    age
+                    + Power.Distance
+                    + Individualism
+                    + Masculinity
+                    + Uncertainty.Avoidance
+                    + Long.Term.Orientation
+                    + Indulgence
+                    + CTL_C
+                    + CTL_DS
+                    + CTL_DG
+                  + (1|country)
+                , data = x
+                , contrasts = list(sex3 = contr.sum, valence = contr.sum )
+            )
+summary(model1)
+anova(model1)
+```
+
+#### (Regular Regression)
+
+We also ran a regression without allowing slopes to vary by country. Results are below:
+
+```{r, include=TRUE, echo=TRUE}
+
+fit <- lm(moral_identity_internal ~
+                    age
+                    + Power.Distance
+                    + Individualism
+                    + Masculinity
+                    + Uncertainty.Avoidance
+                    + Long.Term.Orientation
+                    + Indulgence
+                    + CTL_C
+                    + CTL_DS
+                    + CTL_DG
+                , data = x
+            )
+
+summary(fit)
+
+```
+
+
+### Symbolization
+```{r}
+x <- df[
+  which(
+    df$sex3=="male"
+        # |
+        #   df$sex3=="female"
+          ),]
+
+x$sex3 <- droplevels(x$sex3)
+```
+
+
+```{r, include=TRUE, echo=TRUE}
+
+
+model1 <- lmerTest::lmer(moral_identity_symbolic ~
+                    age
+                    + Power.Distance
+                    + Individualism
+                    + Masculinity
+                    + Uncertainty.Avoidance
+                    + Long.Term.Orientation
+                    + Indulgence
+                    + CTL_C
+                    + CTL_DS
+                    + CTL_DG
+                  + (1|country)
+                , data = x
+                , contrasts = list(sex3 = contr.sum, valence = contr.sum )
+            )
+summary(model1)
+anova(model1)
+```
+
+#### (Regular Regression)
+
+We also ran a regression without allowing slopes to vary by country. Results are below:
+
+```{r, include=TRUE, echo=TRUE}
+
+fit <- lm(moral_identity_symbolic ~
+                    age
+                    + Power.Distance
+                    + Individualism
+                    + Masculinity
+                    + Uncertainty.Avoidance
+                    + Long.Term.Orientation
+                    + Indulgence
+                    + CTL_C
+                    + CTL_DS
+                    + CTL_DG
+                , data = x
+            )
+
+summary(fit)
+
+```
+
+
+
+## Women
+### Internalization
+
+```{r}
+x <- df[
+  which(
+    # df$sex3=="male"
+    #     |
+          df$sex3=="female"
+          ),]
+
+x$sex3 <- droplevels(x$sex3)
+```
+
+
+```{r, include=TRUE, echo=TRUE}
+
+
+model1 <- lmerTest::lmer(moral_identity_internal ~
+                    age
+                    + Power.Distance
+                    + Individualism
+                    + Masculinity
+                    + Uncertainty.Avoidance
+                    + Long.Term.Orientation
+                    + Indulgence
+                    + CTL_C
+                    + CTL_DS
+                    + CTL_DG
+                  + (1|country)
+                , data = x
+                , contrasts = list(sex3 = contr.sum, valence = contr.sum )
+            )
+summary(model1)
+anova(model1)
+
+```
+
+#### (Regular Regression)
+
+We also ran a regression without allowing slopes to vary by country. Results are below:
+
+```{r, include=TRUE, echo=TRUE}
+
+
+fit <- lm(moral_identity_internal ~
+                    age
+                    + Power.Distance
+                    + Individualism
+                    + Masculinity
+                    + Uncertainty.Avoidance
+                    + Long.Term.Orientation
+                    + Indulgence
+                    + CTL_C
+                    + CTL_DS
+                    + CTL_DG
+                , data = x
+            )
+
+summary(fit)
+
+```
+
+
+### Symbolization
+```{r}
+x <- df[
+  which(
+    # df$sex3=="male"
+    #     |
+          df$sex3=="female"
+          ),]
+
+x$sex3 <- droplevels(x$sex3)
+```
+
+
+```{r, include=TRUE, echo=TRUE}
+
+
+model1 <- lmerTest::lmer(moral_identity_symbolic ~
+                    age
+                    + Power.Distance
+                    + Individualism
+                    + Masculinity
+                    + Uncertainty.Avoidance
+                    + Long.Term.Orientation
+                    + Indulgence
+                    + CTL_C
+                    + CTL_DS
+                    + CTL_DG
+                  + (1|country)
+                , data = x
+                , contrasts = list(sex3 = contr.sum, valence = contr.sum )
+            )
+summary(model1)
+anova(model1)
+
+```
+
+#### (Regular Regression)
+
+We also ran a regression without allowing slopes to vary by country. Results are below:
+
+```{r, include=TRUE, echo=TRUE}
+
+fit <- lm(moral_identity_symbolic ~
+                    age
+                    + Power.Distance
+                    + Individualism
+                    + Masculinity
+                    + Uncertainty.Avoidance
+                    + Long.Term.Orientation
+                    + Indulgence
+                    + CTL_C
+                    + CTL_DS
+                    + CTL_DG
+                , data = x
+            )
+
+summary(fit)
+
+```

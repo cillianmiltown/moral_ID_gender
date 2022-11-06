@@ -13,6 +13,8 @@ library(desnum)
 library(papaja)
 library(purrr)
 library(foreign)
+#install.packages("readxl")
+#library("readxl")
 
 rm(list = ls())
 getwd()
@@ -234,5 +236,151 @@ alpha(risk_perception_tot)
 
 df$risk_perception_tot <- rowMeans(risk_perception_tot, na.rm = TRUE)
 
+#### Add culture variables ####
+
+#library("readxl")
+culture_df <- readxl::read_excel("data/ICSMP_cleaned_data_with_culture_july_2022.xlsx")
+culture_df1 <- read.csv("data/culture.csv")
+#culture_df <- culture_df1[3:12]
+
+culture_df <- culture_df[3:12]
+variable.names(df)
+x <- culture_df
+x$ISO3 <- as.factor(x$`ISO3 country code`)
+
+#x$`Power Distance`
+power_fun <- function(y){
+  temp_df <- cbind.data.frame(
+    levels(x$ISO3)[y]
+    , x$`Power Distance`[which(x$ISO3==levels(x$ISO3)[y])][1]
+  )
+  `colnames<-`(temp_df,c("ISO3","Power.Distance"))
+}
+
+#x$Individualism
+indiv_fun <- function(y){
+  temp_df <- cbind.data.frame(
+    levels(x$ISO3)[y]
+    , x$Individualism[which(x$ISO3==levels(x$ISO3)[y])][1]
+  )
+  `colnames<-`(temp_df,c("ISO3","Individualism"))
+}
+
+#x$Masculinity
+mascu_fun <- function(y){
+  temp_df <- cbind.data.frame(
+    levels(x$ISO3)[y]
+    , x$Masculinity[which(x$ISO3==levels(x$ISO3)[y])][1]
+  )
+  `colnames<-`(temp_df,c("ISO3","Masculinity"))
+}
+
+#x$`Uncertainty Avoidance`
+uncrt_fun <- function(y){
+  temp_df <- cbind.data.frame(
+    levels(x$ISO3)[y]
+    , x$`Uncertainty Avoidance`[which(x$ISO3==levels(x$ISO3)[y])][1]
+  )
+  `colnames<-`(temp_df,c("ISO3","Uncertainty.Avoidance"))
+}
+
+#x$`Long Term Orientation`
+longt_fun <- function(y){
+  temp_df <- cbind.data.frame(
+    levels(x$ISO3)[y]
+    , x$`Long Term Orientation`[which(x$ISO3==levels(x$ISO3)[y])][1]
+  )
+  `colnames<-`(temp_df,c("ISO3","Long.Term.Orientation"))
+}
+
+#x$Indulgence
+indul_fun <- function(y){
+  temp_df <- cbind.data.frame(
+    levels(x$ISO3)[y]
+    , x$Indulgence[which(x$ISO3==levels(x$ISO3)[y])][1]
+  )
+  `colnames<-`(temp_df,c("ISO3","Indulgence"))
+}
+
+
+#x$CTL_C
+tight_c_fun <- function(y){
+  temp_df <- cbind.data.frame(
+    levels(x$ISO3)[y]
+    , x$CTL_C[which(x$ISO3==levels(x$ISO3)[y])][1]
+  )
+  `colnames<-`(temp_df,c("ISO3","CTL_C"))
+}
+
+
+#x$CTL_DG
+tight_dg_fun <- function(y){
+  temp_df <- cbind.data.frame(
+    levels(x$ISO3)[y]
+    , x$CTL_DG[which(x$ISO3==levels(x$ISO3)[y])][1]
+  )
+  `colnames<-`(temp_df,c("ISO3","CTL_DG"))
+}
+
+
+#x$CTL_DS
+tight_ds_fun <- function(y){
+  temp_df <- cbind.data.frame(
+    levels(x$ISO3)[y]
+    , x$CTL_DS[which(x$ISO3==levels(x$ISO3)[y])][1]
+  )
+  `colnames<-`(temp_df,c("ISO3","CTL_DS"))
+}
+
+indul_fun(1)
+tight_c_fun(1)
+do.call(rbind, lapply(1:length(levels(x$ISO3)), power_fun))
+do.call(rbind, lapply(1:length(levels(x$ISO3)), indiv_fun))
+do.call(rbind, lapply(1:length(levels(x$ISO3)), mascu_fun))
+do.call(rbind, lapply(1:length(levels(x$ISO3)), uncrt_fun))
+do.call(rbind, lapply(1:length(levels(x$ISO3)), longt_fun))
+
+do.call(rbind, lapply(1:length(levels(x$ISO3)), tight_c_fun))
+do.call(rbind, lapply(1:length(levels(x$ISO3)), tight_dg_fun))
+do.call(rbind, lapply(1:length(levels(x$ISO3)), tight_ds_fun))
+
+
+
+df1 <-
+  left_join(
+    left_join(
+      left_join(
+        left_join(
+          left_join(
+            left_join(
+              left_join(
+                left_join(
+                  do.call(rbind, lapply(1:length(levels(x$ISO3)), power_fun))
+                  , do.call(rbind, lapply(1:length(levels(x$ISO3)), indiv_fun))
+                  , by="ISO3")
+                , do.call(rbind, lapply(1:length(levels(x$ISO3)), mascu_fun))
+                , by="ISO3")
+              , do.call(rbind, lapply(1:length(levels(x$ISO3)), uncrt_fun))
+              , by="ISO3")
+            , do.call(rbind, lapply(1:length(levels(x$ISO3)), longt_fun))
+            , by="ISO3")
+          , do.call(rbind, lapply(1:length(levels(x$ISO3)), indul_fun))
+          , by="ISO3")
+        , do.call(rbind, lapply(1:length(levels(x$ISO3)), tight_c_fun))
+        , by="ISO3")
+      , do.call(rbind, lapply(1:length(levels(x$ISO3)), tight_dg_fun))
+      , by="ISO3")
+    , do.call(rbind, lapply(1:length(levels(x$ISO3)), tight_ds_fun))
+    , by="ISO3")
+
+
+
+df3 <- dplyr::left_join(df, x, by='ISO3')
+
+df3 <- merge(df,df1, by  = "ISO3")
+
+df <- df3
+
 write.csv(df, "data/data_with_means.csv", row.names = FALSE)
 save(df, file = "data/data_with_means.RData")
+
