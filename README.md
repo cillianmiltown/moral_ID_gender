@@ -5,3 +5,7 @@
 - We are investigating individual differences in Moral Identity (both *Internalization* and *Symbolization*) across countries.
 
 - Sample Analysis available at: [https://cillianmiltown.github.io/moral_ID_gender/sample_analysis.html](https://cillianmiltown.github.io/moral_ID_gender/sample_analysis.html)
+
+- Drafting results section available at: [https://cillianmiltown.github.io/moral_ID_gender/drafting_results_section.html](https://cillianmiltown.github.io/moral_ID_gender/drafting_results_section.html)
+
+- Proposed Supplementary Analysis available at: [https://cillianmiltown.github.io/moral_ID_gender/drafting_supplementary_analysis.html](https://cillianmiltown.github.io/moral_ID_gender/drafting_supplementary_analysis.html)
