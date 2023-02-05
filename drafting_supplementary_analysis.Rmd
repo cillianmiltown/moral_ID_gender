@@ -353,7 +353,7 @@ P_R <-
             ,"-"
             ,"-"))),
       c("mean F","SD F","mean M", "SD M", "t","df","p","d"))
-    ,c("Peurto Rico"))
+    ,c("Puerto Rico"))
 
 test <- rbind(test[1:49,],P_R,test[50:length(test$`mean F`),])
 test <- test[order(rownames(test) ),]
@@ -370,6 +370,141 @@ apa_table(
 
 
 ```
+
+### Internalization Plot
+
+```{r internalizationPlot}
+
+# x <- df[which(df$sex3=="male"|df$sex3=="female"),]
+# x$sex3 <- droplevels(x$sex3)
+# x <- x %>% group_by(country_name) %>% do(data = (.)) %>% with( set_names(data, country_name) )
+# 
+# #### identify countries with small samples
+# male_length <- function(x){sum(x$sex3=='male')}
+# males <- lapply(x, male_length)
+# female_length <- function(x){sum(x$sex3=='female')}
+# females <- lapply(x, female_length)
+# names(females)
+# 
+# #### generate a vector containing all countries with less than 10 observations for either males or females ####
+# exclusions <- c(names(males[males<2]),
+#   names(females[females<2]))
+# 
+# #### re-load ungrouped data ####
+# x <- df[which(df$sex3=="male"|df$sex3=="female"),]
+# x$sex3 <- droplevels(x$sex3)
+# 
+# # and remove missing again
+# sum(is.na(x$moral_identity_internal))
+# x <- x[which(is.na(x$moral_identity_internal)==FALSE),]
+# 
+# #### Filter out any countries to be excluded ####
+# x <- subset(x, !(country_name %in% exclusions))
+# 
+# df1 <- x
+# 
+# df1_male <- df1[which(df1$sex3=="male"),]
+# df1_female <- df1[which(df1$sex3=="female"),]
+# 
+# internal_mean_sd <- function(x){
+#   z <- x
+#   z$mean <- mean(z$moral_identity_internal, na.rm=T)
+#   z$sd <- sd(z$moral_identity_internal, na.rm=T)
+#   z
+# }
+# 
+# 
+# df1 <- rbind.data.frame(
+#   internal_mean_sd(df1_female),
+#   internal_mean_sd(df1_male)
+# )
+# 
+# df1$sex3 <- dplyr::recode(df1$sex3
+#                            , "male" = "Male"
+#                            , "female" = "Female")
+# 
+# g1 <- ggplot(df1,aes(x=sex3,y=moral_identity_internal))+
+#   #geom_jitter(height = .1, width = .1, size=.0001, color="gray") + 
+#   geom_jitter(shape=16, position=position_jitter(height = .5, width = .45), size=.1, color="lightgrey")+
+#   geom_violin(fill = NA) +
+#   #ggforce::geom_sina(size=.01)+
+#   # geom_sina(shape=16
+#   #           , position=position_jitter(height=.25,width=0)
+#   #           , size=.000001
+#   #           , color="dark grey"
+#   #           ,jitter_y=F
+#   # )+
+#   geom_boxplot(width=0.1, outlier.shape = NA, color='grey')+
+#   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.06,
+#                 position=position_dodge(0.05), color="#5a5a5a")+
+#   stat_summary(fun=mean, geom="point", shape=16, size=.5)+
+#   # stat_summary(geom = "linerange",
+#   #   fun.data = mean_sdl, 
+#   #   fun.args = list(mult = 1),
+#   #   colour = "black"
+#   # )+
+#   xlab("Gender")+
+#   ylab("Internalization")+  
+#   facet_wrap(~df1$ISO3, ncol = 9 )+
+#   #geom_jitter(shape=16, position=position_jitter(height = .5, width = .45), size=.01, color="dark grey")
+#   theme_bw() +
+#   theme(panel.border = element_blank(),
+#         axis.line = element_line(size = .2),
+#         strip.background  = element_blank(),
+#         panel.grid = element_blank(),
+#         plot.title=element_text(#family="Times",
+#           size=12
+#         ),
+#         #legend.position="right",
+#         legend.text=element_text(#family="Times",
+#           size=8
+#         ),
+#         legend.title=element_text(#family="Times",
+#           size=10
+#         ),
+#         axis.text=element_text(#family="Times",
+#           colour = "black",
+#           size=8
+#         ),
+#         axis.ticks.x = element_blank(),
+#         axis.title=element_text(#family="Times",
+#           size=12
+#         ),
+#         strip.text=element_text(#family = "Times",
+#           size = 12
+#         ),
+#         # strip.background = element_rect(fill = "white"),
+#         legend.position="none")
+# 
+# ggsave("plots/internalization.png", g1, width = 40, height = 25, units = "in", dpi = 300)
+
+```
+
+```{r, InternalizationGender,fig.cap="Gender differences in Internalization for each country",include=TRUE}
+#suppressWarnings(print(g1))
+
+```
+
+
+<style>
+#wrapper { width: 100%;; height: 702px; padding: 0; overflow: hidden; border: 1px}
+#scaled-frame { width: 250%; height: 900px; border: 1px; }
+#scaled-frame {
+    zoom: 0.50;
+    -moz-transform: scale(0.50);
+    -moz-transform-origin: 0 0;
+    -o-transform: scale(0.50);
+    -o-transform-origin: 0 0;
+    -webkit-transform: scale(0.50);
+    -webkit-transform-origin: 0 0;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+ #scaled-frame  { zoom: 1;  }
+}
+</style>
+
+<div id="wrapper"><iframe id="scaled-frame" src="plots/internalization.png"></iframe></div>
 
 
 ## Symbolization
@@ -556,7 +691,9 @@ loop_exclusions_fun <- function(x){
 
 rownames(test) <-  unlist(lapply(1:length(rownames(test)), loop_exclusions_fun))
 test
-test <- test[order(rownames(test) ),]
+#test <-
+test[order(rownames(test) ),]
+
 
 ```
 
@@ -620,7 +757,7 @@ P_R <-
             ,"-"
             ,"-"))),
       c("mean F","SD F","mean M", "SD M", "t","df","p","d"))
-    ,c("Peurto Rico"))
+    ,c("Puerto Rico"))
 
 test <- rbind(test[1:49,],P_R,test[50:length(test$`mean F`),])
 test <- test[order(rownames(test) ),]
@@ -639,698 +776,142 @@ apa_table(
 ```
 
 
-
-# Overview
-
-# Testing for Country Effects
-
-## Internalization
+### Symbolization Plot
 
 
-```{r}
+```{r symbolizationPlot}
 
-# start building the model
-## first test if country should be included
-
-# no country
-interceptOnly <-gls(moral_identity_internal ~ 1
-                    , data = df
-                    , method = "ML"
-                    , na.action = na.exclude)
-summary(interceptOnly)
-
-# country included
-randomInterceptOnly <-lme(moral_identity_internal ~ 1
-                          , data = df
-                          , random = ~1|country
-                          , method = "ML"
-                          , na.action = na.exclude)
-summary(randomInterceptOnly)
-
-LL_d <- logLik(interceptOnly)*-2 - logLik(randomInterceptOnly)*-2
-aov <- anova(interceptOnly, randomInterceptOnly)
-country_p <- aov$`p-value`[2]
-
-
-
-```
-
-
-Initial testing revealed that for Internalization, allowing intercepts to vary with Country significantly improved the predictive power of the model $\chi$^2^(`r round(aov$df[2]-aov$df[1], digits=2)`) = `r round(aov$L.Ratio[2],digits=2)`, *p* `r paste(p_report(country_p))`.
-
-```{r}
-test <- 
-  do.call(
-    rbind,
-    tapply(df$moral_identity_internal, df$ISO3, descriptives)
-    )
-
-descriptives(df$moral_identity_internal)
-
-test[order(-test$mean), ]
-country_order <- rownames(test[order(-test$mean), ])
-```
-
-```{r, internalizationCountry, include=TRUE}
-apa_table(
-  test
-  , caption = "Internalization basic descriptives by Country")
-```
-
-
-```{r}
-# https://www.r-bloggers.com/2019/03/all-around-the-world-maps-and-flags-in-r/
-df$flag_location <- rep(-1)
-
-test1 <- test[order(-test$mean), ]
-test1$country1 <- rownames(test1)
-test1$position <- c(11:(10+length(test1$country1)))
-test1$ISO3 <- test1$country1
-test1$position_country <- paste0(test1$position,test1$country1)
-df1 <- left_join(df, test1, by = "ISO3")
-```
-
-```{r}
-
-g <- ggplot(df1,aes(x=position_country,y=moral_identity_internal))+
-  #geom_violin() +
-  stat_summary(fun=mean, geom="point", shape=23, size=2)+
-  geom_boxplot(width=0.1, outlier.shape = NA)+
-  xlab("Country")+
-  ylab("Internalization")+
-  geom_jitter(shape=16, position=position_jitter(0.15), size=.1, color="dark grey")+
-  geom_axis_flags(breaks = df1$position_country,
-                   labels = df1$ISO3,
-                   country_icons = df1$ISO3,
-                   axis = "x",
-                    width = 20,
-                   # lineheight = 2,
-                   # fontface = "bold"
-  )
-```
-
-
-<div class=superbigimage>
-```{r, meanInternalization,include=TRUE,fig.width=20,fig.height=6}
-suppressWarnings(print(g))
-
-```
-
-</div>
-## Symbolization
-
-
-```{r}
+# x <- df[which(df$sex3=="male"|df$sex3=="female"),]
+# x$sex3 <- droplevels(x$sex3)
+# x <- x %>% group_by(country_name) %>% do(data = (.)) %>% with( set_names(data, country_name) )
 # 
-# # start building the model
-# ## first test if country should be included
+# #### identify countries with small samples
+# male_length <- function(x){sum(x$sex3=='male')}
+# males <- lapply(x, male_length)
+# female_length <- function(x){sum(x$sex3=='female')}
+# females <- lapply(x, female_length)
+# names(females)
 # 
-# # no country
-# interceptOnly <-gls(moral_identity_symbolic ~ 1
-#                     , data = df
-#                     , method = "ML"
-#                     , na.action = na.exclude)
-# summary(interceptOnly)
+# #### generate a vector containing all countries with less than 10 observations for either males or females ####
+# exclusions <- c(names(males[males<2]),
+#   names(females[females<2]))
 # 
-# # country included
-# randomInterceptOnly <-lme(moral_identity_symbolic ~ 1
-#                           , data = df
-#                           , random = ~1|country
-#                           , method = "ML"
-#                           , na.action = na.exclude)
-# summary(randomInterceptOnly)
+# #### re-load ungrouped data ####
+# x <- df[which(df$sex3=="male"|df$sex3=="female"),]
+# x$sex3 <- droplevels(x$sex3)
 # 
-# LL_d <- logLik(interceptOnly)*-2 - logLik(randomInterceptOnly)*-2
-# aov <- anova(interceptOnly, randomInterceptOnly)
-# country_p <- aov$`p-value`[2]
+# # and remove missing again
+# sum(is.na(x$moral_identity_symbolic))
+# x <- x[which(is.na(x$moral_identity_symbolic)==FALSE),]
+# 
+# #### Filter out any countries to be excluded ####
+# x <- subset(x, !(country_name %in% exclusions))
+# 
+# df1 <- x
+# 
+# df1_male <- df1[which(df1$sex3=="male"),]
+# df1_female <- df1[which(df1$sex3=="female"),]
+# 
+# internal_mean_sd <- function(x){
+#   z <- x
+#   z$mean <- mean(z$moral_identity_symbolic, na.rm=T)
+#   z$sd <- sd(z$moral_identity_symbolic, na.rm=T)
+#   z
+# }
+# 
+# 
+# df1 <- rbind.data.frame(
+#   internal_mean_sd(df1_female),
+#   internal_mean_sd(df1_male)
+# )
+# 
+# df1$sex3 <- dplyr::recode(df1$sex3
+#                            , "male" = "Male"
+#                            , "female" = "Female")
+# 
+# g1 <- ggplot(df1,aes(x=sex3,y=moral_identity_symbolic))+
+#   geom_jitter(height = .1, width = .1, size=.0001, color="gray") +
+#   geom_jitter(shape=16, position=position_jitter(height = .5, width = .45), size=.001, color="lightgrey")+
+#   geom_violin(fill = NA) +
+#   #ggforce::geom_sina(size=.01)+
+#   # geom_sina(shape=16
+#   #           , position=position_jitter(height=.25,width=0)
+#   #           , size=.000001
+#   #           , color="dark grey"
+#   #           ,jitter_y=F
+#   # )+
+#   geom_boxplot(width=0.1, outlier.shape = NA, color='grey')+
+#   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.06,
+#                 position=position_dodge(0.05), color="#5a5a5a")+
+#   stat_summary(fun=mean, geom="point", shape=16, size=.5)+
+#   # stat_summary(geom = "linerange",
+#   #   fun.data = mean_sdl,
+#   #   fun.args = list(mult = 1),
+#   #   colour = "black"
+#   # )+
+#   xlab("Gender")+
+#   ylab("Internalization")+
+#   facet_wrap(~df1$ISO3, ncol = 9 )+
+#   #geom_jitter(shape=16, position=position_jitter(height = .5, width = .45), size=.01, color="dark grey")
+#   theme_bw() +
+#   theme(panel.border = element_blank(),
+#         axis.line = element_line(size = .2),
+#         strip.background  = element_blank(),
+#         panel.grid = element_blank(),
+#         plot.title=element_text(#family="Times",
+#           size=12
+#         ),
+#         #legend.position="right",
+#         legend.text=element_text(#family="Times",
+#           size=8
+#         ),
+#         legend.title=element_text(#family="Times",
+#           size=10
+#         ),
+#         axis.text=element_text(#family="Times",
+#           colour = "black",
+#           size=8
+#         ),
+#         axis.ticks.x = element_blank(),
+#         axis.title=element_text(#family="Times",
+#           size=12
+#         ),
+#         strip.text=element_text(#family = "Times",
+#           size = 12
+#         ),
+#         # strip.background = element_rect(fill = "white"),
+#         legend.position="none")
 
+#g1
 
+#ggsave("plots/symbolization.png", g1, width = 40, height = 25, units = "in", dpi = 300)
+#g2
+```
+
+```{r, SymbolizationGender,fig.cap="Gender differences in Symbolization for each country",include=TRUE}
+#suppressWarnings(print(g1))
 
 ```
 
 
 
-Initial testing revealed that for Symbolization, allowing intercepts to vary with Country significantly improved the predictive power of the model $\chi$^2^(`r round(aov$df[2]-aov$df[1], digits=2)`) = `r round(aov$L.Ratio[2],digits=2)`, *p* `r paste(p_report(country_p))`.
+<style>
+#wrapper { width: 100%;; height: 702px; padding: 0; overflow: hidden; border: 1px}
+#scaled-frame { width: 250%; height: 900px; border: 1px; }
+#scaled-frame {
+    zoom: 0.50;
+    -moz-transform: scale(0.50);
+    -moz-transform-origin: 0 0;
+    -o-transform: scale(0.50);
+    -o-transform-origin: 0 0;
+    -webkit-transform: scale(0.50);
+    -webkit-transform-origin: 0 0;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+ #scaled-frame  { zoom: 1;  }
+}
+</style>
+
+<div id="wrapper"><iframe id="scaled-frame" src="plots/internalization.png"></iframe></div>
 
-
-
-```{r}
-test <- 
-  do.call(
-    rbind,
-    tapply(df$moral_identity_symbolic, df$ISO3, descriptives)
-    )
-
-descriptives(df$moral_identity_symbolic)
-
-test[order(-test$mean), ]
-country_order <- rownames(test[order(-test$mean), ])
-```
-
-```{r, symbolizationCountry, include=TRUE}
-apa_table(
-  test
-  , caption = "Symbolization basic descriptives by Country")
-```
-
-
-```{r}
-# https://www.r-bloggers.com/2019/03/all-around-the-world-maps-and-flags-in-r/
-df$flag_location <- rep(-1)
-
-test1 <- test[order(-test$mean), ]
-test1$country1 <- rownames(test1)
-test1$position <- c(11:(10+length(test1$country1)))
-test1$ISO3 <- test1$country1
-test1$position_country <- paste0(test1$position,test1$country1)
-df1 <- left_join(df, test1, by = "ISO3")
-```
-
-```{r}
-
-g <- ggplot(df1,aes(x=position_country,y=moral_identity_symbolic))+
-  #geom_violin() +
-  stat_summary(fun=mean, geom="point", shape=23, size=2)+
-  geom_boxplot(width=0.1, outlier.shape = NA)+
-  xlab("Country")+
-  ylab("Symbolization")+
-  geom_jitter(shape=16, position=position_jitter(0.15), size=.1, color="dark grey")+
-  geom_axis_flags(breaks = df1$position_country,
-                   labels = df1$ISO3,
-                   country_icons = df1$ISO3,
-                   axis = "x",
-                    width = 20,
-                   # lineheight = 2,
-                   # fontface = "bold"
-  )
-```
-
-
-<div class=superbigimage>
-```{r, meanSymbolization,include=TRUE,fig.width=20,fig.height=6}
-suppressWarnings(print(g))
-
-```
-
-</div>
-
-# Gender Differences
-
-```{r}
-test <- 
-  do.call(
-    rbind,
-    tapply(df$moral_identity_internal, df$sex3, descriptives)
-    )
-
-descriptives(df$moral_identity_internal)
-
-test[order(-test$mean), ]
-country_order <- rownames(test[order(-test$mean), ])
-```
-
-```{r, internalizationgender, include=TRUE}
-apa_table(
-  test
-  , caption = "Internalization basic descriptives by Gender")
-```
-
-
-
-```{r}
-df1 <- df
-g <- ggplot(df1,aes(x=sex3,y=moral_identity_internal))+
-  geom_violin() +
-  #ggforce::geom_sina(size=.01)+
-  stat_summary(fun=mean, geom="point", shape=23, size=2)+
-  geom_boxplot(width=0.1, outlier.shape = NA)+
-  xlab("Gender")+
-  ylab("Internalization")+  
-  geom_jitter(shape=16, position=position_jitter(height = .5, width = .45), size=.01, color="dark grey")
-  
-g
-```
-
-
-```{r, meanInternalizationGender,include=TRUE}
-suppressWarnings(print(g))
-
-```
-
-
-```{r}
-test <- 
-  do.call(
-    rbind,
-    tapply(df$moral_identity_symbolic, df$sex3, descriptives)
-    )
-
-descriptives(df$moral_identity_symbolic)
-
-test[order(-test$mean), ]
-country_order <- rownames(test[order(-test$mean), ])
-```
-
-```{r, symbolizationgender, include=TRUE}
-apa_table(
-  test
-  , caption = "Symbolization basic descriptives by Gender")
-```
-
-
-
-```{r}
-df1 <- df
-g <- ggplot(df1,aes(x=sex3,y=moral_identity_symbolic))+
-  geom_violin() +
-  #ggforce::geom_sina(size=.01)+
-  stat_summary(fun=mean, geom="point", shape=23, size=2)+
-  geom_boxplot(width=0.1, outlier.shape = NA)+
-  xlab("Gender")+
-  ylab("Symbolization")+  
-  geom_jitter(shape=16, position=position_jitter(height = .5, width = .45), size=.01, color="dark grey")
-  
-g
-```
-
-
-```{r, meanSymbolizationGender,include=TRUE}
-suppressWarnings(print(g))
-
-```
-
-
-# Predictors (Individual Level Only)
-
-## Internalization
-```{r}
-x <- df[which(df$sex3=="male"|df$sex3=="female"),]
-x$sex3 <- droplevels(x$sex3)
-
-```
-
-
-```{r, include=TRUE, echo=TRUE}
-
-
-model1 <- lmerTest::lmer(moral_identity_internal ~
-                    sex3
-                  * age
-                  + (1|country)
-                , data = x
-                , contrasts = list(sex3 = contr.sum, valence = contr.sum )
-            )
-summary(model1)
-anova(model1)
-
-```
-
-
-## Symbolization
-```{r}
-x <- df[which(df$sex3=="male"|df$sex3=="female"),]
-x$sex3 <- droplevels(x$sex3)
-```
-
-
-```{r, include=TRUE, echo=TRUE}
-
-
-model1 <- lmerTest::lmer(moral_identity_symbolic ~
-                    sex3
-                  * age
-                  + (1|country)
-                , data = x
-                , contrasts = list(sex3 = contr.sum, valence = contr.sum )
-            )
-summary(model1)
-anova(model1)
-
-```
-
-
-# Predictors (Cultural Variables Included)
-
-## Internalization
-```{r}
-x <- df[which(df$sex3=="male"|df$sex3=="female"),]
-x$sex3 <- droplevels(x$sex3)
-```
-
-
-```{r, include=TRUE, echo=TRUE}
-
-
-model1 <- lmerTest::lmer(moral_identity_internal ~
-                    sex3
-                    * (age
-                    + Power.Distance
-                    + Individualism
-                    + Masculinity
-                    + Uncertainty.Avoidance
-                    + Long.Term.Orientation
-                    + Indulgence
-                    + CTL_C
-                    + CTL_DS
-                    + CTL_DG)
-                  + (1|country)
-                , data = x
-                , contrasts = list(sex3 = contr.sum, valence = contr.sum )
-            )
-summary(model1)
-anova(model1)
-
-```
-
-#### (Regular Regression)
-
-We also ran a regression without allowing slopes to vary by country. Results are below:
-
-```{r, include=TRUE, echo=TRUE}
-
-fit <- lm(moral_identity_internal ~
-                    sex3
-                    + age
-                    + Power.Distance
-                    + Individualism
-                    + Masculinity
-                    + Uncertainty.Avoidance
-                    + Long.Term.Orientation
-                    + Indulgence
-                    + CTL_C
-                    + CTL_DS
-                    + CTL_DG
-                , data = x
-            )
-
-summary(fit)
-
-```
-
-
-## Symbolization
-```{r}
-x <- df[which(df$sex3=="male"|df$sex3=="female"),]
-x$sex3 <- droplevels(x$sex3)
-```
-
-
-```{r, include=TRUE, echo=TRUE}
-
-
-model1 <- lmerTest::lmer(moral_identity_symbolic ~
-                    sex3
-                    * (age
-                    + Power.Distance
-                    + Individualism
-                    + Masculinity
-                    + Uncertainty.Avoidance
-                    + Long.Term.Orientation
-                    + Indulgence
-                    + CTL_C
-                    + CTL_DS
-                    + CTL_DG)
-                  + (1|country)
-                , data = x
-                , contrasts = list(sex3 = contr.sum, valence = contr.sum )
-            )
-summary(model1)
-anova(model1)
-
-```
-
-#### (Regular Regression)
-
-We also ran a regression without allowing slopes to vary by country. Results are below:
-
-```{r, include=TRUE, echo=TRUE}
-
-fit <- lm(moral_identity_symbolic ~
-                    sex3
-                    + age
-                    + Power.Distance
-                    + Individualism
-                    + Masculinity
-                    + Uncertainty.Avoidance
-                    + Long.Term.Orientation
-                    + Indulgence
-                    + CTL_C
-                    + CTL_DS
-                    + CTL_DG
-                , data = x
-            )
-
-summary(fit)
-
-
-```
-
-
-
-# Men and Women Separately
-
-## Men
-### Internalization
-```{r}
-x <- df[
-  which(
-    df$sex3=="male"
-        # |
-        #   df$sex3=="female"
-          ),]
-
-x$sex3 <- droplevels(x$sex3)
-```
-
-
-```{r, include=TRUE, echo=TRUE}
-
-
-model1 <- lmerTest::lmer(moral_identity_internal ~
-                    age
-                    + Power.Distance
-                    + Individualism
-                    + Masculinity
-                    + Uncertainty.Avoidance
-                    + Long.Term.Orientation
-                    + Indulgence
-                    + CTL_C
-                    + CTL_DS
-                    + CTL_DG
-                  + (1|country)
-                , data = x
-                , contrasts = list(sex3 = contr.sum, valence = contr.sum )
-            )
-summary(model1)
-anova(model1)
-```
-
-#### (Regular Regression)
-
-We also ran a regression without allowing slopes to vary by country. Results are below:
-
-```{r, include=TRUE, echo=TRUE}
-
-fit <- lm(moral_identity_internal ~
-                    age
-                    + Power.Distance
-                    + Individualism
-                    + Masculinity
-                    + Uncertainty.Avoidance
-                    + Long.Term.Orientation
-                    + Indulgence
-                    + CTL_C
-                    + CTL_DS
-                    + CTL_DG
-                , data = x
-            )
-
-summary(fit)
-
-```
-
-
-### Symbolization
-```{r}
-x <- df[
-  which(
-    df$sex3=="male"
-        # |
-        #   df$sex3=="female"
-          ),]
-
-x$sex3 <- droplevels(x$sex3)
-```
-
-
-```{r, include=TRUE, echo=TRUE}
-
-
-model1 <- lmerTest::lmer(moral_identity_symbolic ~
-                    age
-                    + Power.Distance
-                    + Individualism
-                    + Masculinity
-                    + Uncertainty.Avoidance
-                    + Long.Term.Orientation
-                    + Indulgence
-                    + CTL_C
-                    + CTL_DS
-                    + CTL_DG
-                  + (1|country)
-                , data = x
-                , contrasts = list(sex3 = contr.sum, valence = contr.sum )
-            )
-summary(model1)
-anova(model1)
-```
-
-#### (Regular Regression)
-
-We also ran a regression without allowing slopes to vary by country. Results are below:
-
-```{r, include=TRUE, echo=TRUE}
-
-fit <- lm(moral_identity_symbolic ~
-                    age
-                    + Power.Distance
-                    + Individualism
-                    + Masculinity
-                    + Uncertainty.Avoidance
-                    + Long.Term.Orientation
-                    + Indulgence
-                    + CTL_C
-                    + CTL_DS
-                    + CTL_DG
-                , data = x
-            )
-
-summary(fit)
-
-```
-
-
-
-## Women
-### Internalization
-
-```{r}
-x <- df[
-  which(
-    # df$sex3=="male"
-    #     |
-          df$sex3=="female"
-          ),]
-
-x$sex3 <- droplevels(x$sex3)
-```
-
-
-```{r, include=TRUE, echo=TRUE}
-
-
-model1 <- lmerTest::lmer(moral_identity_internal ~
-                    age
-                    + Power.Distance
-                    + Individualism
-                    + Masculinity
-                    + Uncertainty.Avoidance
-                    + Long.Term.Orientation
-                    + Indulgence
-                    + CTL_C
-                    + CTL_DS
-                    + CTL_DG
-                  + (1|country)
-                , data = x
-                , contrasts = list(sex3 = contr.sum, valence = contr.sum )
-            )
-summary(model1)
-anova(model1)
-
-```
-
-#### (Regular Regression)
-
-We also ran a regression without allowing slopes to vary by country. Results are below:
-
-```{r, include=TRUE, echo=TRUE}
-
-
-fit <- lm(moral_identity_internal ~
-                    age
-                    + Power.Distance
-                    + Individualism
-                    + Masculinity
-                    + Uncertainty.Avoidance
-                    + Long.Term.Orientation
-                    + Indulgence
-                    + CTL_C
-                    + CTL_DS
-                    + CTL_DG
-                , data = x
-            )
-
-summary(fit)
-
-```
-
-
-### Symbolization
-```{r}
-x <- df[
-  which(
-    # df$sex3=="male"
-    #     |
-          df$sex3=="female"
-          ),]
-
-x$sex3 <- droplevels(x$sex3)
-```
-
-
-```{r, include=TRUE, echo=TRUE}
-
-
-model1 <- lmerTest::lmer(moral_identity_symbolic ~
-                    age
-                    + Power.Distance
-                    + Individualism
-                    + Masculinity
-                    + Uncertainty.Avoidance
-                    + Long.Term.Orientation
-                    + Indulgence
-                    + CTL_C
-                    + CTL_DS
-                    + CTL_DG
-                  + (1|country)
-                , data = x
-                , contrasts = list(sex3 = contr.sum, valence = contr.sum )
-            )
-summary(model1)
-anova(model1)
-
-```
-
-#### (Regular Regression)
-
-We also ran a regression without allowing slopes to vary by country. Results are below:
-
-```{r, include=TRUE, echo=TRUE}
-
-fit <- lm(moral_identity_symbolic ~
-                    age
-                    + Power.Distance
-                    + Individualism
-                    + Masculinity
-                    + Uncertainty.Avoidance
-                    + Long.Term.Orientation
-                    + Indulgence
-                    + CTL_C
-                    + CTL_DS
-                    + CTL_DG
-                , data = x
-            )
-
-summary(fit)
-
-```
