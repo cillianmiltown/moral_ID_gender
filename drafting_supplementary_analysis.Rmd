@@ -372,112 +372,113 @@ apa_table(
 ```
 
 ### Internalization Plot
-([open in new window](https://raw.githubusercontent.com/cillianmiltown/moral_ID_gender/main/plots/internalization.png))
+
+(<a href="https://raw.githubusercontent.com/cillianmiltown/moral_ID_gender/main/plots/internalization.png" target="_blank">open in new window</a>)
 
 ```{r internalizationPlot}
 
-x <- df[which(df$sex3=="male"|df$sex3=="female"),]
-x$sex3 <- droplevels(x$sex3)
-x <- x %>% group_by(country_name) %>% do(data = (.)) %>% with( set_names(data, country_name) )
-
-#### identify countries with small samples
-male_length <- function(x){sum(x$sex3=='male')}
-males <- lapply(x, male_length)
-female_length <- function(x){sum(x$sex3=='female')}
-females <- lapply(x, female_length)
-names(females)
-
-#### generate a vector containing all countries with less than 10 observations for either males or females ####
-exclusions <- c(names(males[males<2]),
-  names(females[females<2]))
-
-#### re-load ungrouped data ####
-x <- df[which(df$sex3=="male"|df$sex3=="female"),]
-x$sex3 <- droplevels(x$sex3)
-
-# and remove missing again
-sum(is.na(x$moral_identity_internal))
-x <- x[which(is.na(x$moral_identity_internal)==FALSE),]
-
-#### Filter out any countries to be excluded ####
-x <- subset(x, !(country_name %in% exclusions))
-
-df1 <- x
-
-df1_male <- df1[which(df1$sex3=="male"),]
-df1_female <- df1[which(df1$sex3=="female"),]
-
-internal_mean_sd <- function(x){
-  z <- x
-  z$mean <- mean(z$moral_identity_internal, na.rm=T)
-  z$sd <- sd(z$moral_identity_internal, na.rm=T)
-  z
-}
-
-
-df1 <- rbind.data.frame(
-  internal_mean_sd(df1_female),
-  internal_mean_sd(df1_male)
-)
-
-df1$sex3 <- dplyr::recode(df1$sex3
-                           , "male" = "Male"
-                           , "female" = "Female")
-
-g1 <- ggplot(df1,aes(x=sex3,y=moral_identity_internal))+
-  #geom_jitter(height = .1, width = .1, size=.0001, color="gray") +
-  geom_jitter(shape=16, position=position_jitter(height = .5, width = .45), size=.1, color="darkgrey")+
-  geom_violin(fill = NA) +
-  #ggforce::geom_sina(size=.01)+
-  # geom_sina(shape=16
-  #           , position=position_jitter(height=.25,width=0)
-  #           , size=.000001
-  #           , color="dark grey"
-  #           ,jitter_y=F
-  # )+
-  geom_boxplot(width=0.1, outlier.shape = NA, color='grey')+
-  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.06,
-                position=position_dodge(0.05), color="#5a5a5a")+
-  stat_summary(fun=mean, geom="point", shape=16, size=.5)+
-  # stat_summary(geom = "linerange",
-  #   fun.data = mean_sdl,
-  #   fun.args = list(mult = 1),
-  #   colour = "black"
-  # )+
-  xlab("Gender")+
-  ylab("Internalization")+
-  facet_wrap(~df1$ISO3, ncol = 9 )+
-  #geom_jitter(shape=16, position=position_jitter(height = .5, width = .45), size=.01, color="dark grey")
-  theme_bw() +
-  theme(panel.border = element_blank(),
-        axis.line = element_line(size = .2),
-        strip.background  = element_blank(),
-        panel.grid = element_blank(),
-        plot.title=element_text(#family="Times",
-          size=12
-        ),
-        #legend.position="right",
-        legend.text=element_text(#family="Times",
-          size=8
-        ),
-        legend.title=element_text(#family="Times",
-          size=10
-        ),
-        axis.text=element_text(#family="Times",
-          colour = "black",
-          size=8
-        ),
-        axis.ticks.x = element_blank(),
-        axis.title=element_text(#family="Times",
-          size=12
-        ),
-        strip.text=element_text(#family = "Times",
-          size = 12
-        ),
-        # strip.background = element_rect(fill = "white"),
-        legend.position="none")
-
-ggsave("plots/internalization.png", g1, width = 40, height = 25, units = "in", dpi = 300)
+# x <- df[which(df$sex3=="male"|df$sex3=="female"),]
+# x$sex3 <- droplevels(x$sex3)
+# x <- x %>% group_by(country_name) %>% do(data = (.)) %>% with( set_names(data, country_name) )
+# 
+# #### identify countries with small samples
+# male_length <- function(x){sum(x$sex3=='male')}
+# males <- lapply(x, male_length)
+# female_length <- function(x){sum(x$sex3=='female')}
+# females <- lapply(x, female_length)
+# names(females)
+# 
+# #### generate a vector containing all countries with less than 10 observations for either males or females ####
+# exclusions <- c(names(males[males<2]),
+#   names(females[females<2]))
+# 
+# #### re-load ungrouped data ####
+# x <- df[which(df$sex3=="male"|df$sex3=="female"),]
+# x$sex3 <- droplevels(x$sex3)
+# 
+# # and remove missing again
+# sum(is.na(x$moral_identity_internal))
+# x <- x[which(is.na(x$moral_identity_internal)==FALSE),]
+# 
+# #### Filter out any countries to be excluded ####
+# x <- subset(x, !(country_name %in% exclusions))
+# 
+# df1 <- x
+# 
+# df1_male <- df1[which(df1$sex3=="male"),]
+# df1_female <- df1[which(df1$sex3=="female"),]
+# 
+# internal_mean_sd <- function(x){
+#   z <- x
+#   z$mean <- mean(z$moral_identity_internal, na.rm=T)
+#   z$sd <- sd(z$moral_identity_internal, na.rm=T)
+#   z
+# }
+# 
+# 
+# df1 <- rbind.data.frame(
+#   internal_mean_sd(df1_female),
+#   internal_mean_sd(df1_male)
+# )
+# 
+# df1$sex3 <- dplyr::recode(df1$sex3
+#                            , "male" = "Male"
+#                            , "female" = "Female")
+# 
+# g1 <- ggplot(df1,aes(x=sex3,y=moral_identity_internal))+
+#   #geom_jitter(height = .1, width = .1, size=.0001, color="gray") +
+#   geom_jitter(shape=16, position=position_jitter(height = .5, width = .45), size=.1, color="darkgrey")+
+#   geom_violin(fill = NA) +
+#   #ggforce::geom_sina(size=.01)+
+#   # geom_sina(shape=16
+#   #           , position=position_jitter(height=.25,width=0)
+#   #           , size=.000001
+#   #           , color="dark grey"
+#   #           ,jitter_y=F
+#   # )+
+#   geom_boxplot(width=0.1, outlier.shape = NA, color='grey')+
+#   geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.06,
+#                 position=position_dodge(0.05), color="#5a5a5a")+
+#   stat_summary(fun=mean, geom="point", shape=16, size=.5)+
+#   # stat_summary(geom = "linerange",
+#   #   fun.data = mean_sdl,
+#   #   fun.args = list(mult = 1),
+#   #   colour = "black"
+#   # )+
+#   xlab("Gender")+
+#   ylab("Internalization")+
+#   facet_wrap(~df1$ISO3, ncol = 9 )+
+#   #geom_jitter(shape=16, position=position_jitter(height = .5, width = .45), size=.01, color="dark grey")
+#   theme_bw() +
+#   theme(panel.border = element_blank(),
+#         axis.line = element_line(size = .2),
+#         strip.background  = element_blank(),
+#         panel.grid = element_blank(),
+#         plot.title=element_text(#family="Times",
+#           size=12
+#         ),
+#         #legend.position="right",
+#         legend.text=element_text(#family="Times",
+#           size=8
+#         ),
+#         legend.title=element_text(#family="Times",
+#           size=10
+#         ),
+#         axis.text=element_text(#family="Times",
+#           colour = "black",
+#           size=8
+#         ),
+#         axis.ticks.x = element_blank(),
+#         axis.title=element_text(#family="Times",
+#           size=12
+#         ),
+#         strip.text=element_text(#family = "Times",
+#           size = 12
+#         ),
+#         # strip.background = element_rect(fill = "white"),
+#         legend.position="none")
+# 
+# ggsave("plots/internalization.png", g1, width = 40, height = 25, units = "in", dpi = 300)
 
 ```
 
@@ -778,7 +779,8 @@ apa_table(
 
 
 ### Symbolization Plot
-([open in new window](https://raw.githubusercontent.com/cillianmiltown/moral_ID_gender/main/plots/symbolization.png))
+
+(<a href="https://raw.githubusercontent.com/cillianmiltown/moral_ID_gender/main/plots/symbolization.png" target="_blank">open in new window</a>)
 
 ```{r symbolizationPlot}
 
