@@ -1,0 +1,438 @@
+---
+title: "H2: Age Differences"
+author: "Mariola Paruzel-Czachura, Cillian McHugh"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+bibliography: "resources/bib/My Library.bib"
+csl: "resources/bib/apa.csl"
+output:
+  bookdown::html_document2:
+    fig_caption: yes
+    toc: true
+    toc_float:
+      toc_collapsed: false
+    toc_depth: 4
+    number_sections: false
+editor_options: 
+  chunk_output_type: console
+---
+
+<style>
+  .superbigimage{
+      overflow-x:scroll;
+      white-space: nowrap;
+  }
+
+  .superbigimage img{
+     max-width: none;
+  }
+
+
+</style>
+
+
+```{r setuph2, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(include = FALSE)
+```
+
+
+```{r}
+rm(list = ls())
+library(tidyverse)
+library(plyr)
+library(psych)
+library(skimr)
+library(corrplot)
+library(Hmisc)
+#library(psy)
+library(afex)
+#devtools::install_github("cillianmiltown/R_desnum")
+library(desnum)
+library(papaja)
+library(purrr)
+#install.packages("interactions")
+library(interactions)
+library(kableExtra)
+#devtools::install_github("crsh/papaja")
+library("papaja")
+library(lme4)
+library(car)
+library(ggplot2)
+library(nlme)
+#install.packages("reshape")
+library(reshape)
+library(corx)
+library(lsr)
+#install.packages("Cairo")
+#library(Cairo)
+library(foreign)
+library(ltm)
+library("ggpubr")
+#install.packages("rworldmap")
+library(rworldmap)
+#devtools::install_github("rensa/ggflags")
+library(ggflags)
+#devtools::install_github("schliebs/ggoxford")
+library(ggoxford)
+library(ggforce)
+library(ggbeeswarm)
+library(countrycode)
+```
+
+
+
+```{r}
+rm(list = ls())
+
+#source("set_up_data_calculate_means.R")
+load("data/data_with_means.RData")
+
+df$sex3 <- as.factor(df$sex1)
+df$sex3 <- dplyr::recode(df$sex3,
+               "1"="male"
+              ,"2"="female"
+              ,"3"="other")
+
+df$country_lower <- tolower(df$country)
+df$country_name <- countrycode(df$ISO3, origin = "iso3c", destination = "country.name")
+
+```
+
+
+```{r}
+
+x <- df
+x <- x[which(is.na(x$moral_identity_internal)==FALSE),]
+x <- x[which(is.na(x$age)==FALSE),]
+
+
+c1 <- cor.test(x$moral_identity_internal,x$age)
+
+
+```
+
+
+```{r}
+
+x <- df
+x <- x[which(is.na(x$moral_identity_symbolic)==FALSE),]
+x <- x[which(is.na(x$age)==FALSE),]
+
+
+c2 <- cor.test(x$moral_identity_symbolic,x$age)
+
+```
+
+Due to mixed findings in the literature, we did not have specific predictions regarding the relationship between age and moral identity, and the analyses reported here are exploratory. Overall there was a significant negative correlation between age and internalization *r* = `r sprintf("%.3f", c1$estimate)`, *p* = `r paste(p_report(c1$p.value))`, suggesting that older participants had lower internalization scores. Similarly, we found a significant negative correlation between age and symbolization *r* = `r sprintf("%.3f", c2$estimate)`, *p* = `r paste(p_report(c2$p.value))`, again, suggesting that older participants had lower symbolization scores than younger participants.
+
+
+```{r}
+x <- df
+x <- x[which(is.na(x$moral_identity_internal)==FALSE),]
+x <- x[which(is.na(x$age)==FALSE),]
+
+model0 <- lmerTest::lmer(moral_identity_internal ~
+                 #  sex_01
+                 # * age
+                  + (1|country)
+                , data = x
+                # , contrasts = list(sex3 = contr.sum, valence = contr.sum )
+            )
+
+model1 <- lmerTest::lmer(moral_identity_internal ~
+                 #  sex_01
+                   age
+                  + (1|country)
+                , data = x
+               # , contrasts = list(sex_01 = contr.sum)
+            )
+summary(model1)
+anova(model0,model1)
+
+
+summary(model1)
+anova(model1)
+results_anova <- as.data.frame(anova(model0,model1))
+results_anova
+results_anova$Chisq[2]
+results_anova$Df
+p1 <- results_anova$`Pr(>Chisq)`[2]
+p_report(p1)
+#p_report(results_anova$`Pr(>Chisq)`)[2]
+results_anova$AIC
+summary_model1 <- summary(model1)
+summary_model1
+results_coef <- as.data.frame(summary_model1$coefficients)
+results_coef
+
+aov1 <- anova(model1)
+
+f3a <- aov1$`F value`[1]
+p3a <- aov1$`Pr(>F)`[1]
+
+
+results_coef$Estimate[2]
+results_coef$`Std. Error`[2]
+results_coef$df[2]
+t1 <- results_coef$`t value`[2]
+p2 <- results_coef$`Pr(>|t|)`[2]
+
+#QuantPsyc::lm.beta(results_coef)
+anova(model1)
+
+```
+
+```{r}
+
+x <- df
+x <- x[which(is.na(x$moral_identity_internal)==FALSE),]
+x <- x[which(is.na(x$age)==FALSE),]
+#### group by country for analysis ####
+x <- x %>% group_by(country_name) %>% do(data = (.)) %>% with( set_names(data, country_name) )
+
+
+N_fun <- function(x){
+  length(x$sex3)
+}
+total_Ns <- lapply(x, N_fun)
+
+exclusions <- names(total_Ns)[which(total_Ns<3)]
+x <- df
+x <- x[which(is.na(x$moral_identity_internal)==FALSE),]
+x <- x[which(is.na(x$age)==FALSE),]
+x <- subset(x, !(country_name %in% exclusions))
+
+x <- x %>% group_by(country_name) %>% do(data = (.)) %>% with( set_names(data, country_name) )
+
+cor_fun <- function(x){
+  cor.test(x$moral_identity_symbolic,x$age)
+}
+all_cor_tests <- lapply(x, cor_fun)
+
+all_cor_rs <- function(c){
+  c$estimate
+}
+rs_for_table <- lapply(all_cor_tests, all_cor_rs)
+all_cor_ps <- function(c){
+  c$estimate
+}
+ps_for_table <- lapply(all_cor_tests, all_cor_ps)
+Ns_for_table <- lapply(x, N_fun)
+
+means_INT_fun <- function(x){
+  mean(x$moral_identity_internal)
+}
+mean_int_for_table <- lapply(x, means_INT_fun)
+sd_INT_fun <- function(x){
+  sd(x$moral_identity_internal)
+}
+sd_int_for_table <- lapply(x, sd_INT_fun)
+
+means_age_fun <- function(x){
+  mean(x$age)
+}
+mean_age_for_table <- lapply(x, means_age_fun)
+sd_age_fun <- function(x){
+  sd(x$age)
+}
+sd_age_for_table <- lapply(x, sd_age_fun)
+
+```
+
+```{r}
+test <- 
+  cbind.data.frame(
+     do.call(rbind,mean_age_for_table)
+    ,do.call(rbind,sd_age_for_table)
+    ,do.call(rbind,mean_int_for_table)
+    ,do.call(rbind,sd_int_for_table)
+    ,round(do.call(rbind, rs_for_table),digits=3)
+    ,do.call(rbind, ps_for_table)
+    ,round(do.call(rbind, Ns_for_table))
+    )
+
+test <- `colnames<-`(test, c("mean age","SD age","mean internalization", "SD internalization", "r","p","N"))
+test
+
+sum(unlist(ps_for_table)<.05)
+
+test1 <- subset(test, p < .05)
+test1
+
+total_sig <- length(test1$`mean age`)
+
+neg <- sum(test1$r <0 )
+pos <- sum(test1$r>0)
+
+
+```
+
+
+
+We conducted a linear-mixed-effects model to test if this relationship between age and internalization holds when participants are nested within country. Our outcome measure was internalization and our predictor variable was age; we allowed intercepts to vary by country.
+Overall, the model significantly predicted internalization, and provided a better fit for the data than the baseline model,
+$\chi$^2^(`r results_anova$Df[2]`) = `r sprintf("%.2f",results_anova$Chisq[2])`, *p* `r paste(p_report(p1))`. 
+There was a significant main effect for age,
+*F*(`r aov1$NumDF[1]`, `r sprintf("%.2f",round(aov1$DenDF[1],digits=2))`) = 
+`r sprintf("%.2f",f3a)`, *p* `r paste(p_report(p3a))`;
+with a significant positive association between age and internalization scores, $b$ = `r sprintf("%.3f",results_coef$Estimate[2])`,
+*t*(`r sprintf("%.2f",results_coef$df[2])`) = 
+`r sprintf("%.2f",t1)`,
+*p* `r paste(p_report(p2))`.
+We conducted a series of correlations test if age was related to internalization across all countries.  There was a significant correlation between age and internalization in `r total_sig` countries. Of these, there was a positive correlation between age and internalization in `r pos` countries, and a negative correlation in `r neg` countries (see Supplementary Materials Table S_X).
+
+
+```{r}
+
+x <- df
+x <- x[which(is.na(x$moral_identity_symbolic)==FALSE),]
+x <- x[which(is.na(x$age)==FALSE),]
+
+model0 <- lmerTest::lmer(moral_identity_symbolic ~
+                 #  sex_01
+                 # * age
+                  + (1|country)
+                , data = x
+                # , contrasts = list(sex3 = contr.sum, valence = contr.sum )
+            )
+
+model1 <- lmerTest::lmer(moral_identity_symbolic ~
+                 #  sex_01
+                   age
+                  + (1|country)
+                , data = x
+               # , contrasts = list(sex_01 = contr.sum)
+            )
+summary(model1)
+anova(model0,model1)
+
+
+summary(model1)
+anova(model1)
+results_anova <- as.data.frame(anova(model0,model1))
+results_anova
+results_anova$Chisq[2]
+results_anova$Df
+p1 <- results_anova$`Pr(>Chisq)`[2]
+p_report(p1)
+#p_report(results_anova$`Pr(>Chisq)`)[2]
+results_anova$AIC
+summary_model1 <- summary(model1)
+summary_model1
+results_coef <- as.data.frame(summary_model1$coefficients)
+results_coef
+
+aov1 <- anova(model1)
+
+f3a <- aov1$`F value`[1]
+p3a <- aov1$`Pr(>F)`[1]
+
+
+results_coef$Estimate[2]
+results_coef$`Std. Error`[2]
+results_coef$df[2]
+t1 <- results_coef$`t value`[2]
+p2 <- results_coef$`Pr(>|t|)`[2]
+
+#QuantPsyc::lm.beta(results_coef)
+anova(model1)
+
+```
+
+```{r}
+
+x <- df
+x <- x[which(is.na(x$moral_identity_symbolic)==FALSE),]
+x <- x[which(is.na(x$age)==FALSE),]
+#### group by country for analysis ####
+x <- x %>% group_by(country_name) %>% do(data = (.)) %>% with( set_names(data, country_name) )
+
+
+N_fun <- function(x){
+  length(x$sex3)
+}
+total_Ns <- lapply(x, N_fun)
+
+exclusions <- names(total_Ns)[which(total_Ns<3)]
+x <- df
+x <- x[which(is.na(x$moral_identity_symbolic)==FALSE),]
+x <- x[which(is.na(x$age)==FALSE),]
+x <- subset(x, !(country_name %in% exclusions))
+
+x <- x %>% group_by(country_name) %>% do(data = (.)) %>% with( set_names(data, country_name) )
+
+cor_fun <- function(x){
+  cor.test(x$moral_identity_symbolic,x$age)
+}
+all_cor_tests <- lapply(x, cor_fun)
+
+all_cor_rs <- function(c){
+  c$estimate
+}
+rs_for_table <- lapply(all_cor_tests, all_cor_rs)
+all_cor_ps <- function(c){
+  c$estimate
+}
+ps_for_table <- lapply(all_cor_tests, all_cor_ps)
+Ns_for_table <- lapply(x, N_fun)
+
+means_INT_fun <- function(x){
+  mean(x$moral_identity_symbolic)
+}
+mean_int_for_table <- lapply(x, means_INT_fun)
+sd_INT_fun <- function(x){
+  sd(x$moral_identity_symbolic)
+}
+sd_int_for_table <- lapply(x, sd_INT_fun)
+
+means_age_fun <- function(x){
+  mean(x$age)
+}
+mean_age_for_table <- lapply(x, means_age_fun)
+sd_age_fun <- function(x){
+  sd(x$age)
+}
+sd_age_for_table <- lapply(x, sd_age_fun)
+
+```
+
+```{r}
+test <- 
+  cbind.data.frame(
+     do.call(rbind,mean_age_for_table)
+    ,do.call(rbind,sd_age_for_table)
+    ,do.call(rbind,mean_int_for_table)
+    ,do.call(rbind,sd_int_for_table)
+    ,round(do.call(rbind, rs_for_table),digits=3)
+    ,do.call(rbind, ps_for_table)
+    ,round(do.call(rbind, Ns_for_table))
+    )
+
+test <- `colnames<-`(test, c("mean age","SD age","mean symbolization", "SD symbolization", "r","p","N"))
+test
+
+sum(unlist(ps_for_table)<.05)
+
+test1 <- subset(test, p < .05)
+test1
+
+total_sig <- length(test1$`mean age`)
+
+neg <- sum(test1$r <0 )
+pos <- sum(test1$r>0)
+
+
+```
+
+
+Similarly, for symbolization, we conducted a linear-mixed-effects model to test if the relationship between age and symbolization holds when participants are nested within country. Our outcome measure was symbolization and our predictor variable was age; we allowed intercepts to vary by country.
+Overall, the model significantly predicted symbolization, and provided a better fit for the data than the baseline model,
+$\chi$^2^(`r results_anova$Df[2]`) = `r sprintf("%.2f",results_anova$Chisq[2])`, *p* `r paste(p_report(p1))`. 
+There was a significant main effect for age,
+*F*(`r aov1$NumDF[1]`, `r sprintf("%.2f",round(aov1$DenDF[1],digits=2))`) = 
+`r sprintf("%.2f",f3a)`, *p* `r paste(p_report(p3a))`;
+with a significant positive association between age and internalization scores, $b$ = `r sprintf("%.3f",results_coef$Estimate[2])`,
+*t*(`r sprintf("%.2f",results_coef$df[2])`) = 
+`r sprintf("%.2f",t1)`,
+*p* `r paste(p_report(p2))`.
+We conducted a series of correlations test if age was related to internalization across all countries.  There was a significant correlation between age and internalization in `r total_sig` countries. Of these, there was a positive correlation between age and internalization in `r pos` countries, and a negative correlation in `r neg` countries (see Supplementary Materials Table S_X).
