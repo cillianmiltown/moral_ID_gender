@@ -1,5 +1,5 @@
 ---
-title: "Who Cares about Morality"
+title: "H3: Cultural Differences in Symbolization"
 author: "Mariola Paruzel-Czachura, Cillian McHugh"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 bibliography: "resources/bib/My Library.bib"
@@ -29,7 +29,8 @@ editor_options:
 
 </style>
 
-```{r setupparent, include=FALSE}
+
+```{r setuph3, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_chunk$set(include = FALSE)
 ```
@@ -80,9 +81,8 @@ library(countrycode)
 
 
 
-
-
 ```{r}
+rm(list = ls())
 
 #source("set_up_data_calculate_means.R")
 load("data/data_with_means.RData")
@@ -96,21 +96,48 @@ df$sex3 <- dplyr::recode(df$sex3,
 df$country_lower <- tolower(df$country)
 df$country_name <- countrycode(df$ISO3, origin = "iso3c", destination = "country.name")
 
-```
 
-# H1 Gender Differences
-
-```{r child = 'H1.Rmd'}
-```
-
-# H2 Age Differences
-
-
-```{r child = 'H2.Rmd'}
+x <- df
 ```
 
 
-# H3 Cultural Differences in Symbolization
+```{r}
 
-```{r child = 'H2.Rmd'}
+
+# h3a yes
+# h3b n/a (competing)
+# h3c yes
+# h3d no (no relationship)
+# h3e yes
+# h3f yes
+# h3g no, no, yes
+
+
+x <- x[which(is.na(x$moral_identity_symbolic)==FALSE),]
+
+
+fit <- lm(moral_identity_symbolic ~
+                    # sex3
+                    # + age
+                     Power.Distance
+                    + Individualism
+                    + Masculinity
+                    + Uncertainty.Avoidance
+                    + Long.Term.Orientation
+                    + Indulgence
+                    + CTL_C
+                    + CTL_DS
+                    + CTL_DG
+                , data = x
+            )
+
+summary(fit)
+
+fit_results <- apa_print(fit)
+
+cor.test(x$Power.Distance,x$moral_identity_symbolic)
+
+fit_results$full_result
+
 ```
+
