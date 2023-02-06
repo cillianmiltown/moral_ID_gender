@@ -381,6 +381,9 @@ df3 <- merge(df,df1, by  = "ISO3")
 
 df <- df3
 
-write.csv(df, "data/data_with_means.csv", row.names = FALSE)
-save(df, file = "data/data_with_means.RData")
+# write.csv(df, "data/data_with_means.csv", row.names = FALSE)
+# save(df, file = "data/data_with_means.RData")
+
+write.csv(df, "data/data_with_means_raw.csv", row.names = FALSE)
+save(df, file = "data/data_with_means_raw.RData")
 
