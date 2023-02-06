@@ -352,7 +352,7 @@ with a significant positive association between being female and higher internal
 *t*(`r sprintf("%.2f",results_coef$df[2])`) = 
 `r sprintf("%.2f",t1)`,
 *p* `r paste(p_report(p2))`.
-We conducted a series of independent-samples t-tests to test for gender differences in internalization across all countries.  We found significant gender differences in internalization across `r total_sig` countries. Of these, `r pos` were in the predicted direction, while in `r neg` countries (`r c1` and `r c2`), males showed higher internalization than females (see Supplementary Materials Table S_X).
+We conducted a series of independent-samples t-tests to test for gender differences in internalization across all countries.  We found significant gender differences in internalization across `r total_sig` countries. Of these, `r pos` were in the predicted direction, while in `r neg` countries (`r c1` and `r c2`), males showed higher internalization than females (see Supplementary Materials [Table S_X](https://cillianmiltown.github.io/moral_ID_gender/drafting_supplementary_analysis.html#Internalization_Table)).
 
 
 ```{r}
@@ -577,7 +577,7 @@ with a significant positive association between being female and higher symboliz
 *t*(`r sprintf("%.2f",results_coef$df[2])`) = 
 `r sprintf("%.2f",t1)`,
 *p* `r paste(p_report(p2))`.
-We conducted a series of independent-samples t-tests to test for gender differences in symbolization across all countries. We found significant gender differences in symbolization across `r total_sig` countries. Of these, `r pos` were in the predicted direction, while in `r neg` countries (`r c1` and `r c2`), males showed higher symbolization than females (see Supplementary Materials Table S_X).
+We conducted a series of independent-samples t-tests to test for gender differences in symbolization across all countries. We found significant gender differences in symbolization across `r total_sig` countries. Of these, `r pos` were in the predicted direction, while in `r neg` countries (`r c1` and `r c2`), males showed higher symbolization than females (see Supplementary Materials [Table S_X](https://cillianmiltown.github.io/moral_ID_gender/drafting_supplementary_analysis.html#Symbolization_Table)).
 
 
 

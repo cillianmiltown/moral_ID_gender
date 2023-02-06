@@ -282,7 +282,7 @@ test <-
                  ,do.call(rbind, female_Ns)
                  ,do.call(rbind, male_Ns))
 
-test <- `colnames<-`(test, c("Total N","n Female","N male"))
+test <- `colnames<-`(test, c("Total N","n Female","n Male"))
 
 loop_exclusions_fun <- function(x){
   if(rownames(test)[x] %in% exclusions) print(paste0(rownames(test)[x],"*"),quote = FALSE)
@@ -796,7 +796,7 @@ test <-
                  ,do.call(rbind, female_Ns)
                  ,do.call(rbind, male_Ns))
 
-test <- `colnames<-`(test, c("Total N","n Female","N male"))
+test <- `colnames<-`(test, c("Total N","n Female","n Male"))
 
 loop_exclusions_fun <- function(x){
   if(rownames(test)[x] %in% exclusions) print(paste0(rownames(test)[x],"*"),quote = FALSE)

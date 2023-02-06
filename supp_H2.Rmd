@@ -155,7 +155,7 @@ all_cor_rs <- function(c){
 }
 rs_for_table <- lapply(all_cor_tests, all_cor_rs)
 all_cor_ps <- function(c){
-  c$estimate
+  c$p.value
 }
 ps_for_table <- lapply(all_cor_tests, all_cor_ps)
 ps_output_for_table <- lapply((lapply(all_cor_tests, all_cor_ps)), ps)
@@ -430,7 +430,7 @@ all_cor_rs <- function(c){
 }
 rs_for_table <- lapply(all_cor_tests, all_cor_rs)
 all_cor_ps <- function(c){
-  c$estimate
+  c$p.value
 }
 ps_for_table <- lapply(all_cor_tests, all_cor_ps)
 ps_output_for_table <- lapply((lapply(all_cor_tests, all_cor_ps)), ps)

@@ -112,5 +112,5 @@ df$country_name <- countrycode(df$ISO3, origin = "iso3c", destination = "country
 
 # H3 Cultural Differences in Symbolization
 
-```{r child = 'H2.Rmd'}
+```{r child = 'H3.Rmd'}
 ```
