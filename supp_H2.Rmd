@@ -1,0 +1,663 @@
+---
+title: "H2 Supplement"
+author: "Mariola Paruzel-Czachura, Cillian McHugh"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+bibliography: "resources/bib/My Library.bib"
+csl: "resources/bib/apa.csl"
+output:
+  bookdown::html_document2:
+    fig_caption: yes
+    toc: true
+    toc_float:
+      toc_collapsed: false
+    toc_depth: 4
+    number_sections: false
+editor_options: 
+  chunk_output_type: console
+---
+
+<style>
+  .superbigimage{
+      overflow-x:scroll;
+      white-space: nowrap;
+  }
+
+  .superbigimage img{
+     max-width: none;
+  }
+
+
+</style>
+
+
+
+```{r setuph2supp, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(include = FALSE)
+```
+
+
+```{r}
+rm(list = ls())
+library(tidyverse)
+library(plyr)
+library(psych)
+library(skimr)
+library(corrplot)
+library(Hmisc)
+#library(psy)
+library(afex)
+#devtools::install_github("cillianmiltown/R_desnum")
+library(desnum)
+library(papaja)
+library(purrr)
+#install.packages("interactions")
+library(interactions)
+library(kableExtra)
+#devtools::install_github("crsh/papaja")
+library("papaja")
+library(lme4)
+library(car)
+library(ggplot2)
+library(nlme)
+#install.packages("reshape")
+library(reshape)
+library(corx)
+library(lsr)
+#install.packages("Cairo")
+#library(Cairo)
+library(foreign)
+library(ltm)
+library("ggpubr")
+#install.packages("rworldmap")
+library(rworldmap)
+#devtools::install_github("rensa/ggflags")
+library(ggflags)
+#devtools::install_github("schliebs/ggoxford")
+library(ggoxford)
+library(ggforce)
+library(ggbeeswarm)
+library(countrycode)
+```
+
+```{r}
+
+#source("set_up_data_calculate_means.R")
+load("data/data_with_means.RData")
+
+df$sex3 <- as.factor(df$sex1)
+df$sex3 <- dplyr::recode(df$sex3,
+               "1"="male"
+              ,"2"="female"
+              ,"3"="other")
+
+df$country_lower <- tolower(df$country)
+df$country_name <- countrycode(df$ISO3, origin = "iso3c", destination = "country.name")
+```
+
+```{r}
+rm(list = ls())
+#source("set_up_data_calculate_means.R")
+load("data/data_with_means.RData")
+
+df$sex3 <- as.factor(df$sex1)
+df$sex3 <- dplyr::recode(df$sex3,
+               "1"="male"
+              ,"2"="female"
+              ,"3"="other")
+
+df$country_lower <- tolower(df$country)
+df$country_name <- countrycode(df$ISO3, origin = "iso3c", destination = "country.name")
+```
+
+## Age & Internalization
+
+
+
+```{r}
+
+ps <- function(y){
+  y <- round(y, digits = 3)
+  if(as.numeric(sqrt( y*y) ) <.001) print(paste0("<", " ", ".001","**"), quote = FALSE)
+  else if(as.numeric(sqrt( y*y) ) <.05) print(paste0(sub("^(-?)0.", "\\1.", sprintf("%.3f", 
+        y, quote = FALSE)),"*"))
+  else print(sub("^(-?)0.", "\\1.", sprintf("%.3f", 
+        y)))}
+
+
+x <- df
+x <- x[which(is.na(x$moral_identity_internal)==FALSE),]
+x <- x[which(is.na(x$age)==FALSE),]
+#### group by country for analysis ####
+x <- x %>% group_by(country_name) %>% do(data = (.)) %>% with( set_names(data, country_name) )
+
+
+N_fun <- function(x){
+  length(x$sex3)
+}
+total_Ns <- lapply(x, N_fun)
+
+exclusions <- names(total_Ns)[which(total_Ns<3)]
+x <- df
+x <- x[which(is.na(x$moral_identity_internal)==FALSE),]
+x <- x[which(is.na(x$age)==FALSE),]
+x <- subset(x, !(country_name %in% exclusions))
+
+x <- x %>% group_by(country_name) %>% do(data = (.)) %>% with( set_names(data, country_name) )
+
+cor_fun <- function(x){
+  cor.test(x$moral_identity_symbolic,x$age)
+}
+all_cor_tests <- lapply(x, cor_fun)
+
+all_cor_rs <- function(c){
+  c$estimate
+}
+rs_for_table <- lapply(all_cor_tests, all_cor_rs)
+all_cor_ps <- function(c){
+  c$estimate
+}
+ps_for_table <- lapply(all_cor_tests, all_cor_ps)
+ps_output_for_table <- lapply((lapply(all_cor_tests, all_cor_ps)), ps)
+Ns_for_table <- lapply(x, N_fun)
+
+means_INT_fun <- function(x){
+  mean(x$moral_identity_internal)
+}
+mean_int_for_table <- lapply(x, means_INT_fun)
+sd_INT_fun <- function(x){
+  sd(x$moral_identity_internal)
+}
+sd_int_for_table <- lapply(x, sd_INT_fun)
+
+means_age_fun <- function(x){
+  mean(x$age)
+}
+mean_age_for_table <- lapply(x, means_age_fun)
+sd_age_fun <- function(x){
+  sd(x$age)
+}
+sd_age_for_table <- lapply(x, sd_age_fun)
+
+```
+
+```{r}
+
+
+test <- 
+  cbind.data.frame(
+     round(do.call(rbind,mean_age_for_table),digits = 2)
+    ,round(do.call(rbind,sd_age_for_table),digits = 2)
+    ,round(do.call(rbind,mean_int_for_table),digits = 2)
+    ,round(do.call(rbind,sd_int_for_table),digits = 2)
+    ,round(do.call(rbind, Ns_for_table))
+    ,round(do.call(rbind, rs_for_table),digits=3)
+    ,do.call(rbind, ps_output_for_table)
+    )
+
+test <- `colnames<-`(test, c("mean age","SD age","mean internalization", "SD internalization","N", "r","p"))
+test
+
+sum(unlist(ps_for_table)<.05)
+
+test1 <- subset(test, p < .05)
+test1
+
+total_sig <- length(test1$`mean age`)
+
+neg <- sum(test1$r <0 )
+pos <- sum(test1$r>0)
+
+
+
+x <- df
+x <- x[which(is.na(x$moral_identity_internal)==FALSE),]
+x <- x[which(is.na(x$age)==FALSE),]
+
+
+x <- x %>% group_by(country_name) %>% do(data = (.)) %>% with( set_names(data, country_name) )
+
+
+P_R <- x$`Puerto Rico`
+P_R <- 
+  `rownames<-`(
+    `colnames<-`(
+      as.data.frame(
+        rbind(
+          # c("mean F","SD F","mean M", "SD M", "t","df","p","d")
+          # ,
+          c(
+            round(mean(P_R$age),digits=2)
+            ,round(sd(P_R$age),digits=2)
+            ,round(mean(P_R$moral_identity_internal),digits=2)
+            ,round(sd(P_R$moral_identity_internal),digits=2)
+            ,length(P_R$moral_identity_internal)
+            ,"-"
+            ,"-"))),
+      c("mean age","SD age","mean internalization", "SD internalization","N", "r","p"))
+    ,c("Puerto Rico"))
+
+test <- rbind(test[1:49,],P_R,test[50:length(test$p),])
+test <- test[order(rownames(test) ),]
+
+```
+
+
+```{r include=TRUE}
+
+apa_table(
+  test
+  , align = c("l", "l", "c", "c", "c", "c", "c", "c", "c", "c")
+  , caption = "Correlation between Age and Internalization for each Country"
+  , note = "* = sig. at p < .05; ** = sig. at p < .001")
+
+
+```
+
+```{r}
+
+test <- 
+  cbind.data.frame(
+     round(do.call(rbind,mean_age_for_table),digits = 2)
+    ,round(do.call(rbind,sd_age_for_table),digits = 2)
+    ,round(do.call(rbind,mean_int_for_table),digits = 2)
+    ,round(do.call(rbind,sd_int_for_table),digits = 2)
+    ,round(do.call(rbind, Ns_for_table))
+    ,round(do.call(rbind, rs_for_table),digits=3)
+    ,do.call(rbind, ps_for_table)
+    )
+
+test <- `colnames<-`(test, c("mean age","SD age","mean internalization", "SD internalization","N", "r","p"))
+test
+
+sig_countries <- rownames(test[which(test$p<.05),])
+
+# loop_sigs_fun <- function(x){
+#   if(rownames(test)[x] %in% sig_countries) print(paste0(rownames(test)[x],"*"),quote = FALSE)
+#   else print(rownames(test)[x])
+# }
+# 
+# rownames(test) <-  unlist(lapply(1:length(rownames(test)), loop_sigs_fun))
+# 
+# loop_sigs_fun2 <- function(x,y){
+#   if(x$country_name[y] %in% sig_countries) print(paste0(x$country_name[y],"*"),quote = FALSE)
+#   else print(x$country_name[y])
+# }
+
+
+
+```
+
+
+```{r}
+
+df1 <- subset(df, !(country_name %in% exclusions))
+
+loop_sigs_fun3 <- function(y){
+  if(df1$country_name[y] %in% sig_countries) print(paste0(df1$country_name[y],"*"),quote = FALSE)
+  else print(df1$country_name[y])
+}
+
+df1$country_name2 <- unlist(lapply(1:length(df1$country_name),loop_sigs_fun3))
+
+
+N_fun <- function(x){
+  length(x$sex3)
+}
+length(df1$sex3)
+x <- df1
+x <- x %>% group_by(country_name) %>% do(data = (.)) %>% with( set_names(data, country_name) )
+df1 <- left_join(df1
+                      ,  
+                      `colnames<-`(
+                        cbind.data.frame(
+                          unlist(lapply(x, N_fun))
+                          ,names(unlist(lapply(x, N_fun))))
+                        ,c("N","country_name"))
+                      , by = "country_name")
+
+
+df1$country_name3 <- print(paste0(df1$country_name2, " (N = ", df1$N,")"))
+
+
+g1 <- ggplot(df1, aes(age, moral_identity_internal))+
+  geom_jitter(size=.05, color='darkgrey') + 
+  ylim(0,10) +
+  geom_smooth(method=lm, size = .5,color='black') +
+  labs(y = "Internalization",
+       x = "Age"
+  )+ 
+  theme_apa()+
+  theme_bw()+
+  theme(panel.border = element_blank(),
+        axis.line = element_line(size = .2),
+        strip.background  = element_blank(),
+        #panel.grid = element_blank(),
+        plot.title=element_text(#family="Times",
+          size=12
+        ),
+        #legend.position="right",
+        legend.text=element_text(#family="Times",
+          size=8
+        ),
+        legend.title=element_text(#family="Times",
+          size=10
+        ),
+        axis.text=element_text(#family="Times",
+          colour = "black",
+          size=8
+        ),
+        axis.ticks.x = element_blank(),
+        axis.title=element_text(#family="Times",
+          size=12
+        ),
+        strip.text=element_text(#family = "Times",
+          size = 12
+        ),
+        # strip.background = element_rect(fill = "white"),
+        legend.position="none")+
+  facet_wrap(~df1$country_name3, ncol = 9 )
+
+ggsave("plots/age_internalization.png", g1, width = 40, height = 25, units = "in", dpi = 300)
+
+```
+
+(<a href="https://raw.githubusercontent.com/cillianmiltown/moral_ID_gender/main/plots/age_internalization.png" target="_blank">open in new window</a>)
+
+
+<style>
+#wrapper { width: 100%;; height: 702px; padding: 0; overflow: hidden; border: 1px}
+#scaled-frame { width: 250%; height: 900px; border: 1px; }
+#scaled-frame {
+    zoom: 0.50;
+    -moz-transform: scale(0.50);
+    -moz-transform-origin: 0 0;
+    -o-transform: scale(0.50);
+    -o-transform-origin: 0 0;
+    -webkit-transform: scale(0.50);
+    -webkit-transform-origin: 0 0;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+ #scaled-frame  { zoom: 1;  }
+}
+</style>
+
+<div id="wrapper"><iframe id="scaled-frame" src="plots/age_internalization.png"></iframe></div>
+
+
+
+## Age & Symbolization
+
+```{r}
+
+ps <- function(y){
+  y <- round(y, digits = 3)
+  if(as.numeric(sqrt( y*y) ) <.001) print(paste0("<", " ", ".001","**"), quote = FALSE)
+  else if(as.numeric(sqrt( y*y) ) <.05) print(paste0(sub("^(-?)0.", "\\1.", sprintf("%.3f", 
+        y, quote = FALSE)),"*"))
+  else print(sub("^(-?)0.", "\\1.", sprintf("%.3f", 
+        y)))}
+
+
+x <- df
+x <- x[which(is.na(x$moral_identity_symbolic)==FALSE),]
+x <- x[which(is.na(x$age)==FALSE),]
+#### group by country for analysis ####
+x <- x %>% group_by(country_name) %>% do(data = (.)) %>% with( set_names(data, country_name) )
+
+
+N_fun <- function(x){
+  length(x$sex3)
+}
+total_Ns <- lapply(x, N_fun)
+
+exclusions <- names(total_Ns)[which(total_Ns<3)]
+x <- df
+x <- x[which(is.na(x$moral_identity_symbolic)==FALSE),]
+x <- x[which(is.na(x$age)==FALSE),]
+x <- subset(x, !(country_name %in% exclusions))
+
+x <- x %>% group_by(country_name) %>% do(data = (.)) %>% with( set_names(data, country_name) )
+
+cor_fun <- function(x){
+  cor.test(x$moral_identity_symbolic,x$age)
+}
+all_cor_tests <- lapply(x, cor_fun)
+
+all_cor_rs <- function(c){
+  c$estimate
+}
+rs_for_table <- lapply(all_cor_tests, all_cor_rs)
+all_cor_ps <- function(c){
+  c$estimate
+}
+ps_for_table <- lapply(all_cor_tests, all_cor_ps)
+ps_output_for_table <- lapply((lapply(all_cor_tests, all_cor_ps)), ps)
+Ns_for_table <- lapply(x, N_fun)
+
+means_INT_fun <- function(x){
+  mean(x$moral_identity_symbolic)
+}
+mean_int_for_table <- lapply(x, means_INT_fun)
+sd_INT_fun <- function(x){
+  sd(x$moral_identity_symbolic)
+}
+sd_int_for_table <- lapply(x, sd_INT_fun)
+
+means_age_fun <- function(x){
+  mean(x$age)
+}
+mean_age_for_table <- lapply(x, means_age_fun)
+sd_age_fun <- function(x){
+  sd(x$age)
+}
+sd_age_for_table <- lapply(x, sd_age_fun)
+
+```
+
+```{r}
+
+
+test <- 
+  cbind.data.frame(
+     round(do.call(rbind,mean_age_for_table),digits = 2)
+    ,round(do.call(rbind,sd_age_for_table),digits = 2)
+    ,round(do.call(rbind,mean_int_for_table),digits = 2)
+    ,round(do.call(rbind,sd_int_for_table),digits = 2)
+    ,round(do.call(rbind, Ns_for_table))
+    ,round(do.call(rbind, rs_for_table),digits=3)
+    ,do.call(rbind, ps_output_for_table)
+    )
+    
+
+test <- `colnames<-`(test, c("mean age","SD age","mean symbolization", "SD symbolization","N", "r","p"))
+test
+
+sum(unlist(ps_for_table)<.05)
+
+test1 <- subset(test, p < .05)
+test1
+
+total_sig <- length(test1$`mean age`)
+
+neg <- sum(test1$r <0 )
+pos <- sum(test1$r>0)
+
+
+
+x <- df
+x <- x[which(is.na(x$moral_identity_symbolic)==FALSE),]
+x <- x[which(is.na(x$age)==FALSE),]
+
+
+x <- x %>% group_by(country_name) %>% do(data = (.)) %>% with( set_names(data, country_name) )
+
+
+P_R <- x$`Puerto Rico`
+P_R <- 
+  `rownames<-`(
+    `colnames<-`(
+      as.data.frame(
+        rbind(
+          # c("mean F","SD F","mean M", "SD M", "t","df","p","d")
+          # ,
+          c(
+             round(mean(P_R$age),digits=2)
+            ,round(sd(P_R$age),digits=2)
+            ,round(mean(P_R$moral_identity_symbolic),digits=2)
+            ,round(sd(P_R$moral_identity_symbolic),digits=2)
+            ,length(P_R$moral_identity_symbolic)
+            ,"-"
+            ,"-"))),
+      c("mean age","SD age","mean symbolization", "SD symbolization","N", "r","p"))
+    ,c("Puerto Rico"))
+
+test <- rbind(test[1:49,],P_R,test[50:length(test$p),])
+test <- test[order(rownames(test) ),]
+
+```
+
+
+```{r include=TRUE}
+
+apa_table(
+  test
+  , align = c("l", "l", "c", "c", "c", "c", "c", "c", "c", "c")
+  , caption = "Correlation between Age and Symbolization for each Country"
+  , note = "* = sig. at p < .05; ** = sig. at p < .001")
+
+
+```
+
+
+
+```{r}
+
+test <- 
+  cbind.data.frame(
+     round(do.call(rbind,mean_age_for_table),digits = 2)
+    ,round(do.call(rbind,sd_age_for_table),digits = 2)
+    ,round(do.call(rbind,mean_int_for_table),digits = 2)
+    ,round(do.call(rbind,sd_int_for_table),digits = 2)
+    ,round(do.call(rbind, Ns_for_table))
+    ,round(do.call(rbind, rs_for_table),digits=3)
+    ,do.call(rbind, ps_for_table)
+    )
+
+test <- `colnames<-`(test, c("mean age","SD age","mean symbolization", "SD internalization","N", "r","p"))
+test
+
+sig_countries <- rownames(test[which(test$p<.05),])
+
+# loop_sigs_fun <- function(x){
+#   if(rownames(test)[x] %in% sig_countries) print(paste0(rownames(test)[x],"*"),quote = FALSE)
+#   else print(rownames(test)[x])
+# }
+# 
+# rownames(test) <-  unlist(lapply(1:length(rownames(test)), loop_sigs_fun))
+# 
+# loop_sigs_fun2 <- function(x,y){
+#   if(x$country_name[y] %in% sig_countries) print(paste0(x$country_name[y],"*"),quote = FALSE)
+#   else print(x$country_name[y])
+# }
+
+
+
+```
+
+
+```{r}
+
+df1 <- subset(df, !(country_name %in% exclusions))
+
+loop_sigs_fun3 <- function(y){
+  if(df1$country_name[y] %in% sig_countries) print(paste0(df1$country_name[y],"*"),quote = FALSE)
+  else print(df1$country_name[y])
+}
+
+df1$country_name2 <- unlist(lapply(1:length(df1$country_name),loop_sigs_fun3))
+
+
+N_fun <- function(x){
+  length(x$sex3)
+}
+length(df1$sex3)
+x <- df1
+x <- x %>% group_by(country_name) %>% do(data = (.)) %>% with( set_names(data, country_name) )
+df1 <- left_join(df1
+                      ,  
+                      `colnames<-`(
+                        cbind.data.frame(
+                          unlist(lapply(x, N_fun))
+                          ,names(unlist(lapply(x, N_fun))))
+                        ,c("N","country_name"))
+                      , by = "country_name")
+
+
+df1$country_name3 <- print(paste0(df1$country_name2, " (N = ", df1$N,")"))
+
+
+g1 <- ggplot(df1, aes(age, moral_identity_symbolic))+
+  geom_jitter(size=.05, color='darkgrey') + 
+  ylim(0,10) +
+  geom_smooth(method=lm, size = .5,color='black') +
+  labs(y = "Symbolization",
+       x = "Age"
+  )+ 
+  theme_apa()+
+  theme_bw()+
+  theme(panel.border = element_blank(),
+        axis.line = element_line(size = .2),
+        strip.background  = element_blank(),
+        #panel.grid = element_blank(),
+        plot.title=element_text(#family="Times",
+          size=12
+        ),
+        #legend.position="right",
+        legend.text=element_text(#family="Times",
+          size=8
+        ),
+        legend.title=element_text(#family="Times",
+          size=10
+        ),
+        axis.text=element_text(#family="Times",
+          colour = "black",
+          size=8
+        ),
+        axis.ticks.x = element_blank(),
+        axis.title=element_text(#family="Times",
+          size=12
+        ),
+        strip.text=element_text(#family = "Times",
+          size = 12
+        ),
+        # strip.background = element_rect(fill = "white"),
+        legend.position="none")+
+  facet_wrap(~df1$country_name3, ncol = 9 )
+
+ggsave("plots/age_symbolization.png", g1, width = 40, height = 25, units = "in", dpi = 300)
+
+```
+
+(<a href="https://raw.githubusercontent.com/cillianmiltown/moral_ID_gender/main/plots/age_symbolization.png" target="_blank">open in new window</a>)
+
+<style>
+#wrapper { width: 100%;; height: 702px; padding: 0; overflow: hidden; border: 1px}
+#scaled-frame { width: 250%; height: 900px; border: 1px; }
+#scaled-frame {
+    zoom: 0.50;
+    -moz-transform: scale(0.50);
+    -moz-transform-origin: 0 0;
+    -o-transform: scale(0.50);
+    -o-transform-origin: 0 0;
+    -webkit-transform: scale(0.50);
+    -webkit-transform-origin: 0 0;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+ #scaled-frame  { zoom: 1;  }
+}
+</style>
+
+<div id="wrapper"><iframe id="scaled-frame" src="plots/age_symbolization.png"></iframe></div>
