@@ -115,6 +115,23 @@ x <- df
 
 x <- x[which(is.na(x$moral_identity_symbolic)==FALSE),]
 
+fit0 <- lm(moral_identity_symbolic ~ 
+             mean(x$moral_identity_symbolic)
+                    # sex3
+                    # + age
+                    #  Power.Distance
+                    # + Individualism
+                    # + Masculinity
+                    # + Uncertainty.Avoidance
+                    # + Long.Term.Orientation
+                    # + Indulgence
+                    # + CTL_C
+                    # + CTL_DS
+                    # + CTL_DG
+                 , data = x
+            ) 
+
+summary(fit0)
 
 fit <- lm(moral_identity_symbolic ~
                     # sex3
@@ -132,7 +149,7 @@ fit <- lm(moral_identity_symbolic ~
             )
 
 summary(fit)
-
+anova(fit)
 fit_results <- apa_print(fit)
 
 cor.test(x$Power.Distance,x$moral_identity_symbolic)
@@ -141,3 +158,4 @@ fit_results$full_result
 
 ```
 
+Our third hypothesis predicted relationships between symbolization and specific cultural variables. The variables question are: power distance, individualism, masculinity, uncertainty avoidance, long term orientation, and indulgence, taken from Hofstede (2001), as well as three measures of cultural tightness (domain-specific, domain-general, and a combination index). These variables were inputted at the country level, and as such, we conducted a hierarchical linear regression model to investigate relationship with symbolization. Symbolization was our outcome measure and each cultural variable was included as a predictor in the model. 
