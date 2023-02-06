@@ -358,7 +358,7 @@ g1 <- ggplot(df1, aes(age, moral_identity_internal))+
         legend.position="none")+
   facet_wrap(~df1$country_name3, ncol = 9 )
 
-ggsave("plots/age_internalization.png", g1, width = 40, height = 25, units = "in", dpi = 300)
+ggsave("plots/age_internalization.png", g1, width = 30, height = 20, units = "in", dpi = 300)
 
 ```
 
@@ -636,7 +636,7 @@ g1 <- ggplot(df1, aes(age, moral_identity_symbolic))+
         legend.position="none")+
   facet_wrap(~df1$country_name3, ncol = 9 )
 
-ggsave("plots/age_symbolization.png", g1, width = 40, height = 25, units = "in", dpi = 300)
+ggsave("plots/age_symbolization.png", g1, width = 30, height = 20, units = "in", dpi = 300)
 
 ```
 
