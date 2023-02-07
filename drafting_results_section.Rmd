@@ -114,3 +114,11 @@ df$country_name <- countrycode(df$ISO3, origin = "iso3c", destination = "country
 
 ```{r child = 'H3.Rmd'}
 ```
+
+
+
+# H4 Cultural Differences in Internalization
+
+```{r child = 'H4.Rmd'}
+```
+

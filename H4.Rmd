@@ -1,5 +1,5 @@
 ---
-title: "H3: Cultural Differences in Symbolization"
+title: "H4: Cultural Differences in Internalization"
 author: "Mariola Paruzel-Czachura, Cillian McHugh"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 bibliography: "resources/bib/My Library.bib"
@@ -30,7 +30,7 @@ editor_options:
 </style>
 
 
-```{r setuph3, include=FALSE}
+```{r setuph4, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_chunk$set(include = FALSE)
 ```
@@ -113,10 +113,10 @@ x <- df
 # h3g no, no, yes
 
 
-x <- x[which(is.na(x$moral_identity_symbolic)==FALSE),]
+x <- x[which(is.na(x$moral_identity_internal)==FALSE),]
 
 
-fit <- lm(moral_identity_symbolic ~
+fit <- lm(moral_identity_internal ~
                     # sex3
                     # + age
                      Power.Distance
@@ -136,7 +136,7 @@ fit_results$adj.r.squared
 anova(fit)
 apa_fit_results <- apa_print(fit)
 
-cor.test(x$Power.Distance,x$moral_identity_symbolic)
+cor.test(x$Power.Distance,x$moral_identity_internal)
 
 apa_fit_results$full_result$modelfit$r2
 fit$qr
@@ -210,32 +210,30 @@ variable_label(results_for_table$term) <- "Predictor"
 
 ```
 
-Our third hypothesis predicted relationships between symbolization and specific cultural variables. The variables question are: power distance, individualism, masculinity, uncertainty avoidance, long term orientation, and indulgence, taken from Hofstede (2001), as well as three measures of cultural tightness (domain-specific, domain-general, and a combination index). These variables were inputted at the country level, and as such, we conducted a hierarchical linear regression model to investigate relationship with symbolization. Symbolization was our outcome measure and each cultural variable was included as a predictor in the model.
+We did not make specific predictions regarding the relationship between internalization and the selected cultural variables. As such, the analyses below are exploratory. We conducted a regression analysis to investigate the relationship bewteen these cultural variables and internalization. We entered internalization as our outcome measure and included each of power distance, individualism, masculinity, uncertainty avoidance, long term orientation, and indulgence, and the three dimensions of cultural tightness (domain-specific, domain-general, and a combination index) as predictor variables.
 
-Overall the model was a significant predictor of symbolization `r apa_fit_results$full_result$modelfit$r2`. The full regression results are displayed in Table\ \@ref(tab:regressionTable).
+Overall the model was a significant predictor of internalization `r apa_fit_results$full_result$modelfit$r2`. The full regression results are displayed in Table\ \@ref(tab:regressionTable2).
 
-```{r regressionTable, include=TRUE}
+```{r regressionTable2, include=TRUE}
 apa_table(
   results_for_table
 #  , align = c("c", "c", "c")
-  , caption = "Full Regression Results for each country level variable predicting symbolization"
+  , caption = "Full Regression Results for each country level variable predicting internalization"
   )
 
 ```
 
-In line with H3a greater power distance was associated with higher symbolization scores.
+In contrast to symbolization, power distance was negatively related to internalization.
 
-We proposed two competing hypotheses for the relationship between symbolization and symbolization. H3b~1~ predicted that symbolization would be negatively related to individualism (i.e., higher symbolization would be observed in more collectivist cultures). H3b~2~ predicted that individualism and symbolization would be positively associated. Our results support H3b~2~ (over H3b~1~), suggesting that members of more individualistic societies show greater symbolization scores.
+Similarly, individualism showed a negative relationship with internalization.
 
-We predicted that members of more masculine cultures would score higher in symbolization (H3c). Our results were in line with this prediction.
+Masculinity was unrelated to internalization.
 
-For H3d we predicted that uncertainty avoidance would be related to higher symbolization. This was not supported, and we found no relationship between symbolization and uncertainty avoidance.
+Uncertainty avoidance and long-term orientation were both negatively related to internalization.
 
-We predicted a negative association between long-term orientation and symbolization (H3e), that is, we expected participants in societies showing greater long-term orientation to present with lower symbolization scores. Our results supported this hypothesis.
+Indulgence was positively related to internalization.
 
-Regarding indulgence/restraint, we predicted (H3f) that greater indulgence would be related to higher symbolization scores, and this hypothesis was supported.
-
-We employed measures of three dimensions of cultural tightness, domain-general, domain-specific, and combination, and predicted that symbolization would be positively associated with each dimension. Our hypothesis was supported for only one dimension (domain-general). Interestingly, both domain-specific and combination dimensions of cultural tightness were negatively related to symbolization.
+Regarding cultural tightness, both domain genera, and the combination measure were both positively related to internalization, while domain specific tightness was negatively related to internalization.
 
 
 
