@@ -279,7 +279,7 @@ with a significant positive association between age and internalization scores, 
 *t*(`r sprintf("%.2f",results_coef$df[2])`) = 
 `r sprintf("%.2f",t1)`,
 *p* `r paste(p_report(p2))`.
-We conducted a series of correlations test if age was related to internalization across all countries.  There was a significant correlation between age and internalization in `r total_sig` countries. Of these, there was a positive correlation between age and internalization in `r pos` countries, and a negative correlation in `r neg` countries (see Supplementary Materials [Table S_X](https://cillianmiltown.github.io/moral_ID_gender/drafting_supplementary_analysis.html#Age__Internalization)).
+To interpret this we conducted a series of bivariate correlations to test if age was related to internalization across all countries.  There was a significant correlation between age and internalization in `r total_sig` countries. Of these, there was a positive correlation between age and internalization in `r pos` countries, and a negative correlation in `r neg` countries (see Supplementary Materials [Table S_X](https://cillianmiltown.github.io/moral_ID_gender/drafting_supplementary_analysis.html#Age__Internalization)).
 
 
 ```{r}
@@ -435,4 +435,4 @@ with a significant positive association between age and internalization scores, 
 *t*(`r sprintf("%.2f",results_coef$df[2])`) = 
 `r sprintf("%.2f",t1)`,
 *p* `r paste(p_report(p2))`.
-We conducted a series of correlations test if age was related to internalization across all countries.  There was a significant correlation between age and internalization in `r total_sig` countries. Of these, there was a positive correlation between age and internalization in `r pos` countries, and a negative correlation in `r neg` countries (see Supplementary Materials [Table S_X](https://cillianmiltown.github.io/moral_ID_gender/drafting_supplementary_analysis.html#Age__Symbolization)).
+Again, to interpret this, we conducted a series of correlations to test if age was related to internalization across all countries.  There was a significant correlation between age and internalization in `r total_sig` countries. Of these, there was a positive correlation between age and internalization in `r pos` countries, and a negative correlation in `r neg` countries (see Supplementary Materials [Table S_X](https://cillianmiltown.github.io/moral_ID_gender/drafting_supplementary_analysis.html#Age__Symbolization)).

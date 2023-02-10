@@ -77,6 +77,7 @@ library(ggoxford)
 library(ggforce)
 library(ggbeeswarm)
 library(countrycode)
+
 ```
 
 
@@ -99,6 +100,120 @@ df$country_name <- countrycode(df$ISO3, origin = "iso3c", destination = "country
 
 x <- df
 ```
+
+
+
+```{r}
+
+
+# h3a yes
+# h3b n/a (competing)
+# h3c yes
+# h3d no (no relationship)
+# h3e yes
+# h3f yes
+# h3g no, no, yes
+
+
+x <- x[which(is.na(x$moral_identity_symbolic)==FALSE),]
+
+
+fit <- lm(moral_identity_symbolic ~
+                    # sex3
+                    # + age
+                     Power.Distance
+                    + Individualism
+                    + Masculinity
+                    + Uncertainty.Avoidance
+                    # + Long.Term.Orientation
+                    # + Indulgence
+                    # + CTL_DG
+                    # + CTL_DS
+                    # + CTL_C
+                , data = x
+            )
+fit
+fit_results <- summary(fit)
+fit_results
+
+fit_results$adj.r.squared
+anova(fit)
+apa_fit_results <- apa_print(fit)
+
+cor.test(x$Power.Distance,x$moral_identity_symbolic)
+
+apa_fit_results$full_result$modelfit$r2
+fit$qr
+apa_fit_results$table
+results_for_table <- apa_fit_results$table
+
+estimate_for_table <-
+  `colnames<-`(
+    cbind.data.frame(
+      unlist(fit_results$coefficients[,1])
+      ,names(unlist(fit_results$coefficients[,1]))
+    ), c("estimate","rows"))$estimate
+
+stderror_for_table <-
+  `colnames<-`(
+    cbind.data.frame(
+      unlist(fit_results$coefficients[,2])
+      ,names(unlist(fit_results$coefficients[,2]))
+    ), c("stderror","rows"))$stderror
+
+
+estimate_for_table
+stderror_for_table
+
+
+results_for_table$estimate <- estimate_for_table
+results_for_table$StdError <- stderror_for_table
+
+results_for_table <- results_for_table[c(1,2,7,3,4,5,6)]
+
+
+
+results_for_table$estimate <- sprintf("%.3f", results_for_table$estimate)
+results_for_table$StdError <- sprintf("%.3f", results_for_table$StdError)
+
+# library(Hmisc)
+# 
+# var.labels = 
+#   c(
+#     term        = "Predictor" 
+#     , "estimate"  = "$b$" 
+#     , "StdError"  = "$S.E.$"
+#     , conf.int  = "95\\% CI" 
+#     , statistic = "$t$" 
+#     , df        = "$\\mathit{df}$" 
+#     , p.value   = "$p$" 
+#     )
+# 
+# label(results_for_table) = as.list(var.labels[match(names(results_for_table), names(var.labels))])
+
+
+results_for_table$term <- c(
+  "Intercept"
+  ,"Power Distance"
+  ,"Individualism"
+  ,"Masculinity"
+  ,"Uncertainty Avoidance"
+  ,"Long Term Orientation"
+  ,"Indulgence"
+  ,"Tightness: Domain General"
+  ,"Tightness: Domain Specific"
+  ,"Tightness: Combination Measure"
+)
+
+
+variable_label(results_for_table$estimate) <- "$b$"
+variable_label(results_for_table$StdError) <- "$S.E.$"
+variable_label(results_for_table$term) <- "Predictor"
+
+
+
+```
+
 
 
 ```{r}

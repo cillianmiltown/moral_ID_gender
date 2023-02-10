@@ -107,3 +107,19 @@ df$country_name <- countrycode(df$ISO3, origin = "iso3c", destination = "country
 
 ```
 
+
+
+# Symbolization & Cultural Measures
+
+
+```{r child = 'supp_H3.Rmd'}
+
+```
+
+
+# Internalization & Cultural Measures
+
+
+```{r child = 'supp_H4.Rmd'}
+
+```

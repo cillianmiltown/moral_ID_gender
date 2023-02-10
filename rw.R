@@ -246,3 +246,5 @@ alpha(risk_perception_tot)
 
 df$risk_perception_tot <- rowMeans(risk_perception_tot, na.rm = TRUE)
 
+
+

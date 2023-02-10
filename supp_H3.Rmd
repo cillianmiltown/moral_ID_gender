@@ -1,5 +1,5 @@
 ---
-title: "H2 Supplement"
+title: "H3 Supplement"
 author: "Mariola Paruzel-Czachura, Cillian McHugh"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 bibliography: "resources/bib/My Library.bib"
@@ -71,13 +71,27 @@ library(ltm)
 library("ggpubr")
 #install.packages("rworldmap")
 library(rworldmap)
-#devtools::install_github("rensa/ggflags")
+#install.packages("grConvert")
+#devtools::install_github("sjp/grConvert")
+library(grConvert)
+#remove.packages("grImport2")
+#install.packages("grImport2")
+library(grImport2)
+#install.packages("ragg")
+#remove.packages("ggflags")
+#install.packages("devtools")
+#devtools::install_github("jimjam-slam/ggflags", force = TRUE)
+#help("install_github")
+#devtools::install_github("rensa/ggflags", force = TRUE, dependencies = TRUE)
 library(ggflags)
 #devtools::install_github("schliebs/ggoxford")
 library(ggoxford)
 library(ggforce)
 library(ggbeeswarm)
 library(countrycode)
+
+source('modify_flags.R')
+
 ```
 
 ```{r}
@@ -108,4 +122,1252 @@ df$sex3 <- dplyr::recode(df$sex3,
 
 df$country_lower <- tolower(df$country)
 df$country_name <- countrycode(df$ISO3, origin = "iso3c", destination = "country.name")
+```
+
+## Power Distance
+## Power Distance
+
+```{r}
+x <- df
+
+x <- x[which(is.na(x$Power.Distance)==FALSE),]
+
+x$ISO2 <- countrycode(x$ISO3, "iso3c", "iso2c")
+x$iso2 <- tolower(x$ISO2)
+
+
+x <- x %>% group_by(iso2) %>% do(data = (.)) %>% with( set_names(data, iso2) )
+
+means_fun <- function(x){
+  mean(x$moral_identity_symbolic,na.rm = T)
+}
+symbolic_means <- lapply(x, means_fun)
+sd_fun <- function(x){
+  sd(x$moral_identity_symbolic,na.rm = T)
+}
+symbolic_sds <- lapply(x, sd_fun)
+N_fun <- function(x){
+  length(x$sex3)
+}
+Ns <- lapply(x, N_fun)
+
+power_means_fun <- function(x){
+  mean(x$Power.Distance)
+}
+power_score <- lapply(x, power_means_fun)
+x$Ukraine$Power.Distance
+
+
+test <- 
+  cbind.data.frame(
+     round(do.call(rbind, symbolic_means),digits=2)
+    ,round(do.call(rbind, symbolic_sds),digits=2)
+    ,round(do.call(rbind, power_score),digits=2)
+    ,round(do.call(rbind, Ns),digits=2)
+    )
+
+test <- `colnames<-`(test, c("symbolic_means","symbolic_sds","power_score", "Ns"))
+test$iso2c <- rownames(test)
+#autocoup_df$iso2c <- countrycode(test$country, "country.name", "iso2c")
+# test$iso2c <- countrycode(test$country, "country.name", "iso2c")
+# test$iso2c <- tolower(test$iso2c)
+test$country <- countrycode(test$iso2c, "iso2c", "country.name")
+
+test
+```
+
+
+```{r}
+
+h1 <- .3
+w1 <- .5
+s1 <- 18
+
+lm_fit_intercept <- lm(moral_identity_symbolic ~ Power.Distance, data = df)
+
+lm_fit <- lm(moral_identity_symbolic ~
+                    # sex3
+                    # + age
+                     Power.Distance
+                    + Individualism
+                    + Masculinity
+                    + Uncertainty.Avoidance
+                    + Long.Term.Orientation
+                    + Indulgence
+                    + CTL_DG
+                    + CTL_DS
+                    + CTL_C
+                , data = df
+            )
+lm_fit$coefficients
+
+lm_fit$coefficients[1]
+lm_fit$coefficients[2]
+
+g1 <- ggplot(test, aes(power_score
+                       ,symbolic_means
+                       ,country=iso2c
+                       #,size=Ns
+))+
+  geom_abline(slope=lm_fit_intercept$coefficients[2],
+              #slope=lm_fit$coefficients[2],
+              intercept=lm_fit_intercept$coefficients[1],
+              color="darkgrey",
+              size=.5)+
+  #geom_point(size=13,color="black")+
+  geom_flag(
+    position=position_jitter(
+      h = h1
+      , w = w1
+      , seed = s1)
+    #aes(power_score,symbolic_means,country = iso2c#, size=1#(Ns)
+    #)
+    ,size=7.5
+  )+
+  scale_country()+
+  #scale_size(range = c(8,10))+
+  geom_text(aes(power_score,symbolic_means),label=test$country
+            ,vjust=3.8
+            ,hjust=.44
+            #,nudge_x = .03
+            ,size = 1.6
+            #,check_overlap = TRUE
+            ,position = position_jitter(
+              h = h1
+              , w = w1
+              , seed = s1
+            )
+  )+
+  xlab("Power Distance")+
+  ylab("Symbolization")+
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 10))+
+  theme_bw() +
+  theme(panel.border = element_blank(),
+        axis.line = element_line(size = .2),
+        strip.background  = element_blank(),
+        #panel.grid = element_blank(),
+        plot.title=element_text(#family="Times",
+          size=12
+        ),
+        #legend.position="right",
+        legend.text=element_text(#family="Times",
+          size=8
+        ),
+        legend.title=element_text(#family="Times",
+          size=10
+        ),
+        axis.text=element_text(#family="Times",
+          colour = "black",
+          size=8
+        ),
+        axis.ticks.x = element_blank(),
+        axis.title=element_text(#family="Times",
+          size=12
+        ),
+        strip.text=element_text(#family = "Times",
+          size = 12
+        ),
+        # strip.background = element_rect(fill = "white"),
+        legend.position="none")
+
+ggsave("plots/power_symbolization.png", g1, width = 10, height = 6, units = "in", dpi = 300)
+
+```
+
+
+```{r, Symbolizationpower,fig.cap="Relationship between Power Diatance and Symbolization",include=TRUE}
+suppressWarnings(print(g1))
+
+```
+
+
+## Individualism
+
+```{r}
+x <- df
+x$Individualism
+x <- x[which(is.na(x$Individualism)==FALSE),]
+
+x$ISO2 <- countrycode(x$ISO3, "iso3c", "iso2c")
+x$iso2 <- tolower(x$ISO2)
+
+
+x <- x %>% group_by(iso2) %>% do(data = (.)) %>% with( set_names(data, iso2) )
+
+means_fun <- function(x){
+  mean(x$moral_identity_symbolic,na.rm = T)
+}
+symbolic_means <- lapply(x, means_fun)
+sd_fun <- function(x){
+  sd(x$moral_identity_symbolic,na.rm = T)
+}
+symbolic_sds <- lapply(x, sd_fun)
+N_fun <- function(x){
+  length(x$sex3)
+}
+Ns <- lapply(x, N_fun)
+
+power_means_fun <- function(x){
+  mean(x$Individualism)
+}
+power_score <- lapply(x, power_means_fun)
+x$Ukraine$Power.Distance
+
+
+test <- 
+  cbind.data.frame(
+     round(do.call(rbind, symbolic_means),digits=2)
+    ,round(do.call(rbind, symbolic_sds),digits=2)
+    ,round(do.call(rbind, power_score),digits=2)
+    ,round(do.call(rbind, Ns),digits=2)
+    )
+
+test <- `colnames<-`(test, c("symbolic_means","symbolic_sds","power_score", "Ns"))
+test$iso2c <- rownames(test)
+#autocoup_df$iso2c <- countrycode(test$country, "country.name", "iso2c")
+# test$iso2c <- countrycode(test$country, "country.name", "iso2c")
+# test$iso2c <- tolower(test$iso2c)
+test$country <- countrycode(test$iso2c, "iso2c", "country.name")
+
+test
+```
+
+
+```{r}
+
+h1 <- .3
+w1 <- .5
+s1 <- 18
+
+lm_fit_intercept <- lm(moral_identity_symbolic ~ Individualism, data = df)
+
+lm_fit <- lm(moral_identity_symbolic ~
+                    # sex3
+                    # + age
+                     Power.Distance
+                    + Individualism
+                    + Masculinity
+                    + Uncertainty.Avoidance
+                    + Long.Term.Orientation
+                    + Indulgence
+                    + CTL_DG
+                    + CTL_DS
+                    + CTL_C
+                , data = df
+            )
+
+lm_fit$coefficients[1]
+lm_fit$coefficients[3]
+
+g1 <- ggplot(test, aes(power_score
+                       ,symbolic_means
+                       ,country=iso2c
+                       #,size=Ns
+))+
+  geom_abline(slope=lm_fit_intercept$coefficients[2],
+              #slope=lm_fit$coefficients[3],
+              intercept=lm_fit_intercept$coefficients[1],
+              color="darkgrey",
+              size=.5)+
+  #geom_point(size=13,color="black")+
+  geom_flag(
+    position=position_jitter(
+      h = h1
+      , w = w1
+      , seed = s1)
+    #aes(power_score,symbolic_means,country = iso2c#, size=1#(Ns)
+    #)
+    ,size=7.5
+  )+
+  scale_country()+
+  #scale_size(range = c(8,10))+
+  geom_text(aes(power_score,symbolic_means),label=test$country
+            ,vjust=3.8
+            ,hjust=.44
+            #,nudge_x = .03
+            ,size = 1.6
+            #,check_overlap = TRUE
+            ,position = position_jitter(
+              h = h1
+              , w = w1
+              , seed = s1
+            )
+  )+
+  xlab("Individualism")+
+  ylab("Symbolization")+
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 10))+
+  theme_bw() +
+  theme(panel.border = element_blank(),
+        axis.line = element_line(size = .2),
+        strip.background  = element_blank(),
+        #panel.grid = element_blank(),
+        plot.title=element_text(#family="Times",
+          size=12
+        ),
+        #legend.position="right",
+        legend.text=element_text(#family="Times",
+          size=8
+        ),
+        legend.title=element_text(#family="Times",
+          size=10
+        ),
+        axis.text=element_text(#family="Times",
+          colour = "black",
+          size=8
+        ),
+        axis.ticks.x = element_blank(),
+        axis.title=element_text(#family="Times",
+          size=12
+        ),
+        strip.text=element_text(#family = "Times",
+          size = 12
+        ),
+        # strip.background = element_rect(fill = "white"),
+        legend.position="none")
+
+ggsave("plots/individualism_symbolization.png", g1, width = 10, height = 6, units = "in", dpi = 300)
+
+```
+
+
+```{r, SymbolizationIndividualism,fig.cap="Relationship between Individualism and Symbolization",include=TRUE}
+suppressWarnings(print(g1))
+
+```
+
+
+## Masculinity
+
+```{r}
+x <- df
+
+df$Uncertainty.Avoidance
+x <- x[which(is.na(x$Masculinity)==FALSE),]
+
+x$ISO2 <- countrycode(x$ISO3, "iso3c", "iso2c")
+x$iso2 <- tolower(x$ISO2)
+
+
+x <- x %>% group_by(iso2) %>% do(data = (.)) %>% with( set_names(data, iso2) )
+
+means_fun <- function(x){
+  mean(x$moral_identity_symbolic,na.rm = T)
+}
+symbolic_means <- lapply(x, means_fun)
+sd_fun <- function(x){
+  sd(x$moral_identity_symbolic,na.rm = T)
+}
+symbolic_sds <- lapply(x, sd_fun)
+N_fun <- function(x){
+  length(x$sex3)
+}
+Ns <- lapply(x, N_fun)
+
+power_means_fun <- function(x){
+  mean(x$Masculinity)
+}
+power_score <- lapply(x, power_means_fun)
+x$Ukraine$Uncertainty.Avoidance
+
+
+test <- 
+  cbind.data.frame(
+     round(do.call(rbind, symbolic_means),digits=2)
+    ,round(do.call(rbind, symbolic_sds),digits=2)
+    ,round(do.call(rbind, power_score),digits=2)
+    ,round(do.call(rbind, Ns),digits=2)
+    )
+
+test <- `colnames<-`(test, c("symbolic_means","symbolic_sds","power_score", "Ns"))
+test$iso2c <- rownames(test)
+#autocoup_df$iso2c <- countrycode(test$country, "country.name", "iso2c")
+# test$iso2c <- countrycode(test$country, "country.name", "iso2c")
+# test$iso2c <- tolower(test$iso2c)
+test$country <- countrycode(test$iso2c, "iso2c", "country.name")
+
+test
+```
+
+
+```{r}
+
+h1 <- .3
+w1 <- .5
+s1 <- 18
+
+lm_fit_intercept <- lm(moral_identity_symbolic ~ Masculinity, data = df)
+
+lm_fit <- lm(moral_identity_symbolic ~
+                    # sex3
+                    # + age
+                     Power.Distance
+                    + Individualism
+                    + Masculinity
+                    + Uncertainty.Avoidance
+                    + Long.Term.Orientation
+                    + Indulgence
+                    + CTL_DG
+                    + CTL_DS
+                    + CTL_C
+                , data = df
+            )
+
+lm_fit$coefficients[1]
+lm_fit$coefficients[2]
+
+g1 <- ggplot(test, aes(power_score
+                       ,symbolic_means
+                       ,country=iso2c
+                       #,size=Ns
+))+
+  geom_abline(slope=lm_fit_intercept$coefficients[2],
+              #slope=lm_fit$coefficients[5],
+              intercept=lm_fit_intercept$coefficients[1],
+              color="darkgrey",
+              size=.5)+
+  #geom_point(size=13,color="black")+
+  geom_flag(
+    position=position_jitter(
+      h = h1
+      , w = w1
+      , seed = s1)
+    #aes(power_score,symbolic_means,country = iso2c#, size=1#(Ns)
+    #)
+    ,size=7.5
+  )+
+  scale_country()+
+  #scale_size(range = c(8,10))+
+  geom_text(aes(power_score,symbolic_means),label=test$country
+            ,vjust=3.8
+            ,hjust=.44
+            #,nudge_x = .03
+            ,size = 1.6
+            #,check_overlap = TRUE
+            ,position = position_jitter(
+              h = h1
+              , w = w1
+              , seed = s1
+            )
+  )+
+  xlab("Masculinity")+
+  ylab("Symbolization")+
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 10))+
+  theme_bw() +
+  theme(panel.border = element_blank(),
+        axis.line = element_line(size = .2),
+        strip.background  = element_blank(),
+        #panel.grid = element_blank(),
+        plot.title=element_text(#family="Times",
+          size=12
+        ),
+        #legend.position="right",
+        legend.text=element_text(#family="Times",
+          size=8
+        ),
+        legend.title=element_text(#family="Times",
+          size=10
+        ),
+        axis.text=element_text(#family="Times",
+          colour = "black",
+          size=8
+        ),
+        axis.ticks.x = element_blank(),
+        axis.title=element_text(#family="Times",
+          size=12
+        ),
+        strip.text=element_text(#family = "Times",
+          size = 12
+        ),
+        # strip.background = element_rect(fill = "white"),
+        legend.position="none")
+
+ggsave("plots/masc_symbolization.png", g1, width = 10, height = 6, units = "in", dpi = 300)
+
+```
+
+
+```{r, SymbolizationMasc,fig.cap="Relationship between Masculinity and Symbolization",include=TRUE}
+suppressWarnings(print(g1))
+
+```
+
+
+## Long Term Orientation
+
+```{r}
+x <- df
+
+x$Long.Term.Orientation
+x <- x[which(is.na(x$Long.Term.Orientation)==FALSE),]
+
+x$ISO2 <- countrycode(x$ISO3, "iso3c", "iso2c")
+x$iso2 <- tolower(x$ISO2)
+
+
+x <- x %>% group_by(iso2) %>% do(data = (.)) %>% with( set_names(data, iso2) )
+
+means_fun <- function(x){
+  mean(x$moral_identity_symbolic,na.rm = T)
+}
+symbolic_means <- lapply(x, means_fun)
+sd_fun <- function(x){
+  sd(x$moral_identity_symbolic,na.rm = T)
+}
+symbolic_sds <- lapply(x, sd_fun)
+N_fun <- function(x){
+  length(x$sex3)
+}
+Ns <- lapply(x, N_fun)
+
+power_means_fun <- function(x){
+  mean(x$Long.Term.Orientation)
+}
+power_score <- lapply(x, power_means_fun)
+x$Ukraine$Long.Term.Orientation
+
+
+test <- 
+  cbind.data.frame(
+     round(do.call(rbind, symbolic_means),digits=2)
+    ,round(do.call(rbind, symbolic_sds),digits=2)
+    ,round(do.call(rbind, power_score),digits=2)
+    ,round(do.call(rbind, Ns),digits=2)
+    )
+
+test <- `colnames<-`(test, c("symbolic_means","symbolic_sds","power_score", "Ns"))
+test$iso2c <- rownames(test)
+#autocoup_df$iso2c <- countrycode(test$country, "country.name", "iso2c")
+# test$iso2c <- countrycode(test$country, "country.name", "iso2c")
+# test$iso2c <- tolower(test$iso2c)
+test$country <- countrycode(test$iso2c, "iso2c", "country.name")
+
+test
+```
+
+
+```{r}
+
+h1 <- .3
+w1 <- .5
+s1 <- 18
+
+lm_fit_intercept <- lm(moral_identity_symbolic ~ Long.Term.Orientation, data = df)
+
+
+lm_fit <- lm(moral_identity_symbolic ~
+                    # sex3
+                    # + age
+                     Power.Distance
+                    + Individualism
+                    + Masculinity
+                    + Uncertainty.Avoidance
+                    + Long.Term.Orientation
+                    + Indulgence
+                    + CTL_DG
+                    + CTL_DS
+                    + CTL_C
+                , data = df
+            )
+
+lm_fit
+lm_fit$coefficients[1]
+lm_fit$coefficients[6]
+
+g1 <- ggplot(test, aes(power_score
+                       ,symbolic_means
+                       ,country=iso2c
+                       #,size=Ns
+))+
+  geom_abline(slope=lm_fit_intercept$coefficients[2],
+              #slope=lm_fit$coefficients[6],
+              intercept=lm_fit_intercept$coefficients[1],
+              color="darkgrey",
+              size=.5)+
+  #geom_point(size=13,color="black")+
+  geom_flag(
+    position=position_jitter(
+      h = h1
+      , w = w1
+      , seed = s1)
+    #aes(power_score,symbolic_means,country = iso2c#, size=1#(Ns)
+    #)
+    ,size=7.5
+  )+
+  scale_country()+
+  #scale_size(range = c(8,10))+
+  geom_text(aes(power_score,symbolic_means),label=test$country
+            ,vjust=3.8
+            ,hjust=.44
+            #,nudge_x = .03
+            ,size = 1.6
+            #,check_overlap = TRUE
+            ,position = position_jitter(
+              h = h1
+              , w = w1
+              , seed = s1
+            )
+  )+
+  xlab("Long Term Orientation")+
+  ylab("Symbolization")+
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 10))+
+  theme_bw() +
+  theme(panel.border = element_blank(),
+        axis.line = element_line(size = .2),
+        strip.background  = element_blank(),
+        #panel.grid = element_blank(),
+        plot.title=element_text(#family="Times",
+          size=12
+        ),
+        #legend.position="right",
+        legend.text=element_text(#family="Times",
+          size=8
+        ),
+        legend.title=element_text(#family="Times",
+          size=10
+        ),
+        axis.text=element_text(#family="Times",
+          colour = "black",
+          size=8
+        ),
+        axis.ticks.x = element_blank(),
+        axis.title=element_text(#family="Times",
+          size=12
+        ),
+        strip.text=element_text(#family = "Times",
+          size = 12
+        ),
+        # strip.background = element_rect(fill = "white"),
+        legend.position="none")
+
+ggsave("plots/LTO_symbolization.png", g1, width = 10, height = 6, units = "in", dpi = 300)
+
+```
+
+
+```{r, SymbolizationLTO,fig.cap="Relationship between Long Term Orientation and Symbolization",include=TRUE}
+suppressWarnings(print(g1))
+
+```
+
+
+## Indulgence
+
+```{r}
+x <- df
+x$Indulgence
+x <- x[which(is.na(x$Indulgence)==FALSE),]
+
+x$ISO2 <- countrycode(x$ISO3, "iso3c", "iso2c")
+x$iso2 <- tolower(x$ISO2)
+
+
+x <- x %>% group_by(iso2) %>% do(data = (.)) %>% with( set_names(data, iso2) )
+
+means_fun <- function(x){
+  mean(x$moral_identity_symbolic,na.rm = T)
+}
+symbolic_means <- lapply(x, means_fun)
+sd_fun <- function(x){
+  sd(x$moral_identity_symbolic,na.rm = T)
+}
+symbolic_sds <- lapply(x, sd_fun)
+N_fun <- function(x){
+  length(x$sex3)
+}
+Ns <- lapply(x, N_fun)
+
+power_means_fun <- function(x){
+  mean(x$Indulgence)
+}
+power_score <- lapply(x, power_means_fun)
+x$Ukraine$Indulgence
+
+
+test <- 
+  cbind.data.frame(
+     round(do.call(rbind, symbolic_means),digits=2)
+    ,round(do.call(rbind, symbolic_sds),digits=2)
+    ,round(do.call(rbind, power_score),digits=2)
+    ,round(do.call(rbind, Ns),digits=2)
+    )
+
+test <- `colnames<-`(test, c("symbolic_means","symbolic_sds","power_score", "Ns"))
+test$iso2c <- rownames(test)
+#autocoup_df$iso2c <- countrycode(test$country, "country.name", "iso2c")
+# test$iso2c <- countrycode(test$country, "country.name", "iso2c")
+# test$iso2c <- tolower(test$iso2c)
+test$country <- countrycode(test$iso2c, "iso2c", "country.name")
+
+test
+```
+
+
+```{r}
+
+h1 <- .3
+w1 <- .5
+s1 <- 18
+
+lm_fit_intercept <- lm(moral_identity_symbolic ~ Indulgence, data = df)
+
+
+lm_fit <- lm(moral_identity_symbolic ~
+                    # sex3
+                    # + age
+                     Power.Distance
+                    + Individualism
+                    + Masculinity
+                    + Uncertainty.Avoidance
+                    + Long.Term.Orientation
+                    + Indulgence
+                    + CTL_DG
+                    + CTL_DS
+                    + CTL_C
+                , data = df
+            )
+
+lm_fit$coefficients[1]
+lm_fit$coefficients[2]
+
+g1 <- ggplot(test, aes(power_score
+                       ,symbolic_means
+                       ,country=iso2c
+                       #,size=Ns
+))+
+  geom_abline(slope=lm_fit_intercept$coefficients[2],
+              #slope=lm_fit$coefficients[7],
+              intercept=lm_fit_intercept$coefficients[1],
+              color="darkgrey",
+              size=.5)+
+  #geom_point(size=13,color="black")+
+  geom_flag(
+    position=position_jitter(
+      h = h1
+      , w = w1
+      , seed = s1)
+    #aes(power_score,symbolic_means,country = iso2c#, size=1#(Ns)
+    #)
+    ,size=7.5
+  )+
+  scale_country()+
+  #scale_size(range = c(8,10))+
+  geom_text(aes(power_score,symbolic_means),label=test$country
+            ,vjust=3.8
+            ,hjust=.44
+            #,nudge_x = .03
+            ,size = 1.6
+            #,check_overlap = TRUE
+            ,position = position_jitter(
+              h = h1
+              , w = w1
+              , seed = s1
+            )
+  )+
+  xlab("Indulgence")+
+  ylab("Symbolization")+
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 10))+
+  theme_bw() +
+  theme(panel.border = element_blank(),
+        axis.line = element_line(size = .2),
+        strip.background  = element_blank(),
+        #panel.grid = element_blank(),
+        plot.title=element_text(#family="Times",
+          size=12
+        ),
+        #legend.position="right",
+        legend.text=element_text(#family="Times",
+          size=8
+        ),
+        legend.title=element_text(#family="Times",
+          size=10
+        ),
+        axis.text=element_text(#family="Times",
+          colour = "black",
+          size=8
+        ),
+        axis.ticks.x = element_blank(),
+        axis.title=element_text(#family="Times",
+          size=12
+        ),
+        strip.text=element_text(#family = "Times",
+          size = 12
+        ),
+        # strip.background = element_rect(fill = "white"),
+        legend.position="none")
+
+ggsave("plots/indulgence_symbolization.png", g1, width = 10, height = 6, units = "in", dpi = 300)
+
+```
+
+
+```{r, SymbolizationIndulgence,fig.cap="Relationship between Indulgence and Symbolization",include=TRUE}
+suppressWarnings(print(g1))
+
+```
+
+
+## Tightness Domain General
+
+```{r}
+x <- df
+x$CTL_DG
+x <- x[which(is.na(x$CTL_DG)==FALSE),]
+
+x$ISO2 <- countrycode(x$ISO3, "iso3c", "iso2c")
+x$iso2 <- tolower(x$ISO2)
+
+
+x <- x %>% group_by(iso2) %>% do(data = (.)) %>% with( set_names(data, iso2) )
+
+means_fun <- function(x){
+  mean(x$moral_identity_symbolic,na.rm = T)
+}
+symbolic_means <- lapply(x, means_fun)
+sd_fun <- function(x){
+  sd(x$moral_identity_symbolic,na.rm = T)
+}
+symbolic_sds <- lapply(x, sd_fun)
+N_fun <- function(x){
+  length(x$sex3)
+}
+Ns <- lapply(x, N_fun)
+
+power_means_fun <- function(x){
+  mean(x$CTL_DG)
+}
+power_score <- lapply(x, power_means_fun)
+x$Ukraine$CTL_DG
+
+
+test <- 
+  cbind.data.frame(
+     round(do.call(rbind, symbolic_means),digits=2)
+    ,round(do.call(rbind, symbolic_sds),digits=2)
+    ,round(do.call(rbind, power_score),digits=2)
+    ,round(do.call(rbind, Ns),digits=2)
+    )
+
+test <- `colnames<-`(test, c("symbolic_means","symbolic_sds","power_score", "Ns"))
+test$iso2c <- rownames(test)
+#autocoup_df$iso2c <- countrycode(test$country, "country.name", "iso2c")
+# test$iso2c <- countrycode(test$country, "country.name", "iso2c")
+# test$iso2c <- tolower(test$iso2c)
+test$country <- countrycode(test$iso2c, "iso2c", "country.name")
+
+test
+```
+
+
+```{r}
+
+h1 <- .3
+w1 <- .5
+s1 <- 18
+
+lm_fit_intercept <- lm(moral_identity_symbolic ~ CTL_DG, data = df)
+
+
+lm_fit <- lm(moral_identity_symbolic ~
+                    # sex3
+                    # + age
+                     Power.Distance
+                    + Individualism
+                    + Masculinity
+                    + Uncertainty.Avoidance
+                    + Long.Term.Orientation
+                    + Indulgence
+                    + CTL_DG
+                    + CTL_DS
+                    + CTL_C
+                , data = df
+            )
+
+lm_fit$coefficients[1]
+lm_fit$coefficients[2]
+
+g1 <- ggplot(test, aes(power_score
+                       ,symbolic_means
+                       ,country=iso2c
+                       #,size=Ns
+))+
+  geom_abline(slope=lm_fit_intercept$coefficients[2],
+              #slope=lm_fit$coefficients[8],
+              intercept=lm_fit_intercept$coefficients[1],
+              color="darkgrey",
+              size=.5)+
+  #geom_point(size=13,color="black")+
+  geom_flag(
+    position=position_jitter(
+      h = h1
+      , w = w1
+      , seed = s1)
+    #aes(power_score,symbolic_means,country = iso2c#, size=1#(Ns)
+    #)
+    ,size=7.5
+  )+
+  scale_country()+
+  #scale_size(range = c(8,10))+
+  geom_text(aes(power_score,symbolic_means),label=test$country
+            ,vjust=3.8
+            ,hjust=.44
+            #,nudge_x = .03
+            ,size = 1.6
+            #,check_overlap = TRUE
+            ,position = position_jitter(
+              h = h1
+              , w = w1
+              , seed = s1
+            )
+  )+
+  xlab("Tightness: Domain General")+
+  ylab("Symbolization")+
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 10))+
+  theme_bw() +
+  theme(panel.border = element_blank(),
+        axis.line = element_line(size = .2),
+        strip.background  = element_blank(),
+        #panel.grid = element_blank(),
+        plot.title=element_text(#family="Times",
+          size=12
+        ),
+        #legend.position="right",
+        legend.text=element_text(#family="Times",
+          size=8
+        ),
+        legend.title=element_text(#family="Times",
+          size=10
+        ),
+        axis.text=element_text(#family="Times",
+          colour = "black",
+          size=8
+        ),
+        axis.ticks.x = element_blank(),
+        axis.title=element_text(#family="Times",
+          size=12
+        ),
+        strip.text=element_text(#family = "Times",
+          size = 12
+        ),
+        # strip.background = element_rect(fill = "white"),
+        legend.position="none")
+
+ggsave("plots/ct_dg_symbolization.png", g1, width = 10, height = 6, units = "in", dpi = 300)
+
+```
+
+
+```{r, SymbolizationTDG,fig.cap="Relationship between Domain General Tightness and Symbolization",include=TRUE}
+suppressWarnings(print(g1))
+
+```
+
+
+## Tightness Domain Specific
+
+```{r}
+x <- df
+x$CTL_DS
+x <- x[which(is.na(x$CTL_DS)==FALSE),]
+
+x$ISO2 <- countrycode(x$ISO3, "iso3c", "iso2c")
+x$iso2 <- tolower(x$ISO2)
+
+
+x <- x %>% group_by(iso2) %>% do(data = (.)) %>% with( set_names(data, iso2) )
+
+means_fun <- function(x){
+  mean(x$moral_identity_symbolic,na.rm = T)
+}
+symbolic_means <- lapply(x, means_fun)
+sd_fun <- function(x){
+  sd(x$moral_identity_symbolic,na.rm = T)
+}
+symbolic_sds <- lapply(x, sd_fun)
+N_fun <- function(x){
+  length(x$sex3)
+}
+Ns <- lapply(x, N_fun)
+
+power_means_fun <- function(x){
+  mean(x$CTL_DS)
+}
+power_score <- lapply(x, power_means_fun)
+x$Ukraine$CTL_DS
+
+
+test <- 
+  cbind.data.frame(
+     round(do.call(rbind, symbolic_means),digits=2)
+    ,round(do.call(rbind, symbolic_sds),digits=2)
+    ,round(do.call(rbind, power_score),digits=2)
+    ,round(do.call(rbind, Ns),digits=2)
+    )
+
+test <- `colnames<-`(test, c("symbolic_means","symbolic_sds","power_score", "Ns"))
+test$iso2c <- rownames(test)
+#autocoup_df$iso2c <- countrycode(test$country, "country.name", "iso2c")
+# test$iso2c <- countrycode(test$country, "country.name", "iso2c")
+# test$iso2c <- tolower(test$iso2c)
+test$country <- countrycode(test$iso2c, "iso2c", "country.name")
+
+test
+```
+
+
+```{r}
+
+h1 <- .3
+w1 <- .5
+s1 <- 18
+
+lm_fit_intercept <- lm(moral_identity_symbolic ~ CTL_DS, data = df)
+
+lm_fit <- lm(moral_identity_symbolic ~
+                    # sex3
+                    # + age
+                     Power.Distance
+                    + Individualism
+                    + Masculinity
+                    + Uncertainty.Avoidance
+                    + Long.Term.Orientation
+                    + Indulgence
+                    + CTL_DG
+                    + CTL_DS
+                    + CTL_C
+                , data = df
+            )
+
+lm_fit$coefficients[1]
+lm_fit$coefficients[2]
+
+g1 <- ggplot(test, aes(power_score
+                       ,symbolic_means
+                       ,country=iso2c
+                       #,size=Ns
+))+
+  geom_abline(slope=lm_fit_intercept$coefficients[2],
+              #slope=lm_fit$coefficients[9],
+              intercept=lm_fit_intercept$coefficients[1],
+              color="darkgrey",
+              size=.5)+
+  #geom_point(size=13,color="black")+
+  geom_flag(
+    position=position_jitter(
+      h = h1
+      , w = w1
+      , seed = s1)
+    #aes(power_score,symbolic_means,country = iso2c#, size=1#(Ns)
+    #)
+    ,size=7.5
+  )+
+  scale_country()+
+  #scale_size(range = c(8,10))+
+  geom_text(aes(power_score,symbolic_means),label=test$country
+            ,vjust=3.8
+            ,hjust=.44
+            #,nudge_x = .03
+            ,size = 1.6
+            #,check_overlap = TRUE
+            ,position = position_jitter(
+              h = h1
+              , w = w1
+              , seed = s1
+            )
+  )+
+  xlab("Tightness: Domain Specific")+
+  ylab("Symbolization")+
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 10))+
+  theme_bw() +
+  theme(panel.border = element_blank(),
+        axis.line = element_line(size = .2),
+        strip.background  = element_blank(),
+        #panel.grid = element_blank(),
+        plot.title=element_text(#family="Times",
+          size=12
+        ),
+        #legend.position="right",
+        legend.text=element_text(#family="Times",
+          size=8
+        ),
+        legend.title=element_text(#family="Times",
+          size=10
+        ),
+        axis.text=element_text(#family="Times",
+          colour = "black",
+          size=8
+        ),
+        axis.ticks.x = element_blank(),
+        axis.title=element_text(#family="Times",
+          size=12
+        ),
+        strip.text=element_text(#family = "Times",
+          size = 12
+        ),
+        # strip.background = element_rect(fill = "white"),
+        legend.position="none")
+
+ggsave("plots/ct_ds_symbolization.png", g1, width = 10, height = 6, units = "in", dpi = 300)
+
+```
+
+
+```{r, SymbolizationTDS,fig.cap="Relationship between Domain Specific Tightness and Symbolization",include=TRUE}
+suppressWarnings(print(g1))
+
+```
+
+
+
+## Tightness Combination
+
+```{r}
+x <- df
+x$CTL_C
+x <- x[which(is.na(x$CTL_C)==FALSE),]
+
+x$ISO2 <- countrycode(x$ISO3, "iso3c", "iso2c")
+x$iso2 <- tolower(x$ISO2)
+
+
+x <- x %>% group_by(iso2) %>% do(data = (.)) %>% with( set_names(data, iso2) )
+
+means_fun <- function(x){
+  mean(x$moral_identity_symbolic,na.rm = T)
+}
+symbolic_means <- lapply(x, means_fun)
+sd_fun <- function(x){
+  sd(x$moral_identity_symbolic,na.rm = T)
+}
+symbolic_sds <- lapply(x, sd_fun)
+N_fun <- function(x){
+  length(x$sex3)
+}
+Ns <- lapply(x, N_fun)
+
+power_means_fun <- function(x){
+  mean(x$CTL_C)
+}
+power_score <- lapply(x, power_means_fun)
+x$Ukraine$CTL_C
+
+
+test <- 
+  cbind.data.frame(
+     round(do.call(rbind, symbolic_means),digits=2)
+    ,round(do.call(rbind, symbolic_sds),digits=2)
+    ,round(do.call(rbind, power_score),digits=2)
+    ,round(do.call(rbind, Ns),digits=2)
+    )
+
+test <- `colnames<-`(test, c("symbolic_means","symbolic_sds","power_score", "Ns"))
+test$iso2c <- rownames(test)
+#autocoup_df$iso2c <- countrycode(test$country, "country.name", "iso2c")
+# test$iso2c <- countrycode(test$country, "country.name", "iso2c")
+# test$iso2c <- tolower(test$iso2c)
+test$country <- countrycode(test$iso2c, "iso2c", "country.name")
+
+test
+```
+
+
+```{r}
+
+h1 <- .3
+w1 <- .5
+s1 <- 18
+
+lm_fit_intercept <- lm(moral_identity_symbolic ~ CTL_C, data = df)
+
+lm_fit <- lm(moral_identity_symbolic ~
+                    # sex3
+                    # + age
+                     Power.Distance
+                    + Individualism
+                    + Masculinity
+                    + Uncertainty.Avoidance
+                    + Long.Term.Orientation
+                    + Indulgence
+                    + CTL_DG
+                    + CTL_DS
+                    + CTL_C
+                , data = df
+            )
+
+lm_fit$coefficients[1]
+lm_fit$coefficients[2]
+
+g1 <- ggplot(test, aes(power_score
+                       ,symbolic_means
+                       ,country=iso2c
+                       #,size=Ns
+))+
+  geom_abline(slope=lm_fit_intercept$coefficients[2],
+              #slope=lm_fit$coefficients[10],
+              intercept=lm_fit_intercept$coefficients[1],
+              color="darkgrey",
+              size=.5)+
+  #geom_point(size=13,color="black")+
+  geom_flag(
+    position=position_jitter(
+      h = h1
+      , w = w1
+      , seed = s1)
+    #aes(power_score,symbolic_means,country = iso2c#, size=1#(Ns)
+    #)
+    ,size=7.5
+  )+
+  scale_country()+
+  #scale_size(range = c(8,10))+
+  geom_text(aes(power_score,symbolic_means),label=test$country
+            ,vjust=3.8
+            ,hjust=.44
+            #,nudge_x = .03
+            ,size = 1.6
+            #,check_overlap = TRUE
+            ,position = position_jitter(
+              h = h1
+              , w = w1
+              , seed = s1
+            )
+  )+
+  xlab("Tightness: Combination")+
+  ylab("Symbolization")+
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 10))+
+  theme_bw() +
+  theme(panel.border = element_blank(),
+        axis.line = element_line(size = .2),
+        strip.background  = element_blank(),
+        #panel.grid = element_blank(),
+        plot.title=element_text(#family="Times",
+          size=12
+        ),
+        #legend.position="right",
+        legend.text=element_text(#family="Times",
+          size=8
+        ),
+        legend.title=element_text(#family="Times",
+          size=10
+        ),
+        axis.text=element_text(#family="Times",
+          colour = "black",
+          size=8
+        ),
+        axis.ticks.x = element_blank(),
+        axis.title=element_text(#family="Times",
+          size=12
+        ),
+        strip.text=element_text(#family = "Times",
+          size = 12
+        ),
+        # strip.background = element_rect(fill = "white"),
+        legend.position="none")
+
+ggsave("plots/ct_c_symbolization.png", g1, width = 10, height = 6, units = "in", dpi = 300)
+
+```
+
+
+```{r, SymbolizationTC,fig.cap="Relationship between Tightness: Combination and Symbolization",include=TRUE}
+suppressWarnings(print(g1))
+
 ```

@@ -101,6 +101,48 @@ df$country_name <- countrycode(df$ISO3, origin = "iso3c", destination = "country
 
 ```{r}
 
+
+## Internalization 
+
+alpha_generic <- function(x){
+  df <- x
+  
+  df$moralid4R <- reverse.code(c(-1), df$moralid4)
+  df$moralid7R <- reverse.code(-1, df$moralid7)
+  
+  y <- subset(df,select=c(
+    moralid1
+    , moralid2
+    , moralid4R
+    , moralid7R
+    , moralid10
+  ))
+  cronbach.alpha(y[complete.cases(y),])
+}
+
+alpha_generic(df)
+
+## Symbolization
+
+alpha_generic <- function(x){
+  df <- x
+  y <- subset(df,select=c(
+    moralid3
+  , moralid5
+  , moralid6
+  , moralid8
+  , moralid9
+))
+  cronbach.alpha(y[complete.cases(y),])
+}
+
+alpha_generic(df)
+
+```
+
+
+```{r}
+
 x <- df
 
 table(x$sex3)
@@ -636,7 +678,7 @@ g1 <- ggplot(df1,aes(x=sex3,y=moral_identity_internal))+
   theme(panel.border = element_blank(),
         axis.line = element_line(size = .2),
         strip.background  = element_blank(),
-        panel.grid = element_blank(),
+       # panel.grid = element_blank(),
         plot.title=element_text(#family="Times",
           size=12
         ),
@@ -716,7 +758,7 @@ g2 <- ggplot(df1,aes(x=sex3,y=moral_identity_symbolic))+
   theme(panel.border = element_blank(),
         axis.line = element_line(size = .2),
         strip.background  = element_blank(),
-        panel.grid = element_blank(),
+     #   panel.grid = element_blank(),
         plot.title=element_text(#family="Times",
           size=12
         ),

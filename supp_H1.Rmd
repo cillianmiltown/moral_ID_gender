@@ -78,6 +78,12 @@ library(ggoxford)
 library(ggforce)
 library(ggbeeswarm)
 library(countrycode)
+library(sf)
+# install.packages("rnaturalearth")
+# install.packages("rnaturalearthdata")
+library("rnaturalearth")
+library("rnaturalearthdata")
+
 ```
 
 ```{r}
@@ -620,6 +626,99 @@ ggsave("plots/internalization.png", g1, width = 40, height = 25, units = "in", d
 <div id="wrapper"><iframe id="scaled-frame" src="plots/internalization.png"></iframe></div>
 
 
+### Heat Map
+
+```{r, include=FALSE}
+
+world <- ne_countries(scale = "medium", returnclass = "sf")
+world
+
+#country_name <- countrycode(df$ISO3, origin = "iso3c", destination = "country.name")
+
+
+
+test$country <- rownames(test)
+test$name <- test$country
+
+test_sig <- test[which(test$p<.05),]
+test_sig$mean_diff <- test_sig$`mean F`-test_sig$`mean M`
+
+test_non_sig <- test[which(test$p>.05),]
+test_non_sig$mean_diff <- rep(0, length(test_non_sig$`mean F`))
+rbind.data.frame(test_sig,test_non_sig)
+test <- rbind.data.frame(test_sig,test_non_sig)
+
+#test <- test[which(test$p<.05),]
+
+
+test1 <- left_join(world,test, by = "name")
+
+#test1$mean_diff <- test1$`mean F`-test1$`mean M`
+
+#install.packages("sf")
+#library(sf)
+g1 <- ggplot(test1
+       ,aes(fill=mean_diff)
+       )+
+  geom_sf()+
+  scale_fill_gradient2(
+  low = "blue", #muted("red"),
+  mid = "grey90",
+  high = "red", #muted("blue"),
+  midpoint = 0,
+  space = "Lab",
+  na.value = "white",
+  guide = "colourbar",
+  aesthetics = "fill"
+)+
+  labs(fill = "Mean\nDifference")+
+  theme_bw()+
+  theme(#legend.position = "none"
+   plot.title=element_text(#family="Times",
+    size=12
+  )
+  , legend.text=element_text(#family="Times",
+    size=8
+  )
+  , legend.title=element_text(#family="Times",
+    size=10
+  )
+  , axis.text=element_text(#family="Times",
+    colour = "black",
+    size=8
+  )
+  , axis.ticks.x = element_blank()
+  , axis.title=element_text(#family="Times",
+    size=12
+  )
+  , strip.text=element_text(#family = "Times",
+    size = 12
+  )
+  , strip.background = element_rect(fill = NA, size = 1,
+                                    colour = "white"
+  )
+  , panel.border = element_blank()
+  , axis.line.x = element_line(size = 0.1
+                               , linetype = "solid", colour = "black")
+  , axis.line.y = # element_blank()
+    element_line(size = 0.1
+                 , linetype = "solid", colour = "black")
+  #, legend.position="none"
+  , panel.spacing = unit(2, "lines")
+  )
+
+ggsave("plots/internalization_heatmap.png", g1, width = 10, height = 6, units = "in", dpi = 300)
+
+```
+
+
+```{r, InternalizationHeatMAp,fig.cap="Effect size for gender differences in Internalization across countries",include=TRUE}
+suppressWarnings(print(g1))
+
+```
+
+
+
 ## Symbolization
 
 
@@ -1137,3 +1236,95 @@ ggsave("plots/symbolization.png", g1, width = 40, height = 25, units = "in", dpi
 </style>
 
 <div id="wrapper"><iframe id="scaled-frame" src="plots/internalization.png"></iframe></div>
+
+
+### Heat Map
+
+```{r, include=FALSE}
+
+world <- ne_countries(scale = "medium", returnclass = "sf")
+world
+
+#country_name <- countrycode(df$ISO3, origin = "iso3c", destination = "country.name")
+
+
+
+test$country <- rownames(test)
+test$name <- test$country
+
+test_sig <- test[which(test$p<.05),]
+test_sig$mean_diff <- test_sig$`mean F`-test_sig$`mean M`
+
+test_non_sig <- test[which(test$p>.05),]
+test_non_sig$mean_diff <- rep(0, length(test_non_sig$`mean F`))
+test_non_sig$`mean F`
+length(test_non_sig$`mean F`)
+test <- rbind.data.frame(test_sig,test_non_sig)
+
+test1 <- left_join(world,test, by = "name")
+
+#test1$mean_diff <- test1$`mean F`-test1$`mean M`
+
+#install.packages("sf")
+#library(sf)
+g1 <- ggplot(test1
+       ,aes(fill=mean_diff)
+       )+
+  geom_sf()+
+  scale_fill_gradient2(
+  low = "blue", #muted("red"),
+  mid = "grey95",
+  high = "red", #muted("blue"),
+  midpoint = 0,
+  space = "Lab",
+  na.value = "white",
+  guide = "colourbar",
+  aesthetics = "fill"
+)+
+  labs(fill = "Mean\nDifference")+
+  theme_bw()+
+  theme(#legend.position = "none"
+   plot.title=element_text(#family="Times",
+    size=12
+  )
+  , legend.text=element_text(#family="Times",
+    size=8
+  )
+  , legend.title=element_text(#family="Times",
+    size=10
+  )
+  , axis.text=element_text(#family="Times",
+    colour = "black",
+    size=8
+  )
+  , axis.ticks.x = element_blank()
+  , axis.title=element_text(#family="Times",
+    size=12
+  )
+  , strip.text=element_text(#family = "Times",
+    size = 12
+  )
+  , strip.background = element_rect(fill = NA, size = 1,
+                                    colour = "white"
+  )
+  , panel.border = element_blank()
+  , axis.line.x = element_line(size = 0.1
+                               , linetype = "solid", colour = "black")
+  , axis.line.y = # element_blank()
+    element_line(size = 0.1
+                 , linetype = "solid", colour = "black")
+  #, legend.position="none"
+  , panel.spacing = unit(2, "lines")
+  )
+
+ggsave("plots/symbolization_heatmap.png", g1, width = 10, height = 6, units = "in", dpi = 300)
+
+```
+
+
+```{r, SymbolizationHeatMAp,fig.cap="Effect size for gender differences in Symbolization across countries",include=TRUE}
+suppressWarnings(print(g1))
+
+```
+
+
