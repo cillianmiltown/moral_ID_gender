@@ -1,0 +1,124 @@
+---
+title: "Who Cares about Morality"
+author: "Mariola Paruzel-Czachura, Cillian McHugh"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+bibliography: "resources/bib/My Library.bib"
+csl: "resources/bib/apa.csl"
+output:
+  bookdown::html_document2:
+    fig_caption: yes
+    toc: true
+    toc_float:
+      toc_collapsed: false
+    toc_depth: 4
+    number_sections: false
+editor_options: 
+  chunk_output_type: console
+---
+
+<style>
+  .superbigimage{
+      overflow-x:scroll;
+      white-space: nowrap;
+  }
+
+  .superbigimage img{
+     max-width: none;
+  }
+
+
+</style>
+
+```{r setupparent, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(include = FALSE)
+```
+
+
+```{r}
+rm(list = ls())
+library(tidyverse)
+library(plyr)
+library(psych)
+library(skimr)
+library(corrplot)
+library(Hmisc)
+#library(psy)
+library(afex)
+#devtools::install_github("cillianmiltown/R_desnum")
+library(desnum)
+library(papaja)
+library(purrr)
+#install.packages("interactions")
+library(interactions)
+library(kableExtra)
+#devtools::install_github("crsh/papaja")
+library("papaja")
+library(lme4)
+library(car)
+library(ggplot2)
+library(nlme)
+#install.packages("reshape")
+library(reshape)
+library(corx)
+library(lsr)
+#install.packages("Cairo")
+#library(Cairo)
+library(foreign)
+library(ltm)
+library("ggpubr")
+#install.packages("rworldmap")
+library(rworldmap)
+#devtools::install_github("rensa/ggflags")
+library(ggflags)
+#devtools::install_github("schliebs/ggoxford")
+library(ggoxford)
+library(ggforce)
+library(ggbeeswarm)
+library(countrycode)
+```
+
+
+
+
+
+```{r}
+
+#source("set_up_data_calculate_means.R")
+load("data/data_with_means_semi_clean.RData")
+
+df$sex3 <- as.factor(df$sex1)
+df$sex3 <- dplyr::recode(df$sex3,
+               "1"="male"
+              ,"2"="female"
+              ,"3"="other")
+
+df$country_lower <- tolower(df$country)
+df$country_name <- countrycode(df$ISO3, origin = "iso3c", destination = "country.name")
+
+```
+
+# H1 Gender Differences
+
+```{r child = 'H1_semi_clean.Rmd'}
+```
+
+# H2 Age Differences
+
+
+```{r child = 'H2_semi_clean.Rmd'}
+```
+
+
+# H3 Cultural Differences in Symbolization
+
+```{r child = 'H3_semi_clean.Rmd'}
+```
+
+
+
+# H4 Cultural Differences in Internalization
+
+```{r child = 'H4_semi_clean.Rmd'}
+```
+

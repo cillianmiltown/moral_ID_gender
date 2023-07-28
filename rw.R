@@ -247,4 +247,21 @@ alpha(risk_perception_tot)
 df$risk_perception_tot <- rowMeans(risk_perception_tot, na.rm = TRUE)
 
 
+####
+as.data.frame(table(df$country_name,df$Power.Distance))
+
+length(levels(as.factor(df$country_name[which(is.na(df$Power.Distance==0)==FALSE)])))
+length(levels(as.factor(df$country_name[which(is.na(df$Individualism==0)==FALSE)])))
+length(levels(as.factor(df$country_name[which(is.na(df$Uncertainty.Avoidance==0)==FALSE)])))
+length(levels(as.factor(df$country_name[which(is.na(df$Masculinity==0)==FALSE)])))
+
+length(levels(as.factor(df$country_name[which(is.na(df$Indulgence==0)==FALSE)])))
+length(levels(as.factor(df$country_name[which(is.na(df$Long.Term.Orientation==0)==FALSE)])))
+
+
+length(levels(as.factor(df$country_name[which(is.na(df$CTL_DG==0)==FALSE)])))
+length(levels(as.factor(df$country_name[which(is.na(df$CTL_DS==0)==FALSE)])))
+length(levels(as.factor(df$country_name[which(is.na(df$CTL_C==0)==FALSE)])))
+
+x <- x %>% group_by(country_name) %>% do(data = (.)) %>% with( set_names(data, country_name) )
 

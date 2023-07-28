@@ -1,0 +1,356 @@
+---
+title: "H3: Cultural Differences in Symbolization"
+author: "Mariola Paruzel-Czachura, Cillian McHugh"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+bibliography: "resources/bib/My Library.bib"
+csl: "resources/bib/apa.csl"
+output:
+  bookdown::html_document2:
+    fig_caption: yes
+    toc: true
+    toc_float:
+      toc_collapsed: false
+    toc_depth: 4
+    number_sections: false
+editor_options: 
+  chunk_output_type: console
+---
+
+<style>
+  .superbigimage{
+      overflow-x:scroll;
+      white-space: nowrap;
+  }
+
+  .superbigimage img{
+     max-width: none;
+  }
+
+
+</style>
+
+
+```{r setuph3, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(include = FALSE)
+```
+
+
+```{r}
+rm(list = ls())
+library(tidyverse)
+library(plyr)
+library(psych)
+library(skimr)
+library(corrplot)
+library(Hmisc)
+#library(psy)
+library(afex)
+#devtools::install_github("cillianmiltown/R_desnum")
+library(desnum)
+library(papaja)
+library(purrr)
+#install.packages("interactions")
+library(interactions)
+library(kableExtra)
+#devtools::install_github("crsh/papaja")
+library("papaja")
+library(lme4)
+library(car)
+library(ggplot2)
+library(nlme)
+#install.packages("reshape")
+library(reshape)
+library(corx)
+library(lsr)
+#install.packages("Cairo")
+#library(Cairo)
+library(foreign)
+library(ltm)
+library("ggpubr")
+#install.packages("rworldmap")
+library(rworldmap)
+#devtools::install_github("rensa/ggflags")
+library(ggflags)
+#devtools::install_github("schliebs/ggoxford")
+library(ggoxford)
+library(ggforce)
+library(ggbeeswarm)
+library(countrycode)
+
+```
+
+
+
+```{r}
+rm(list = ls())
+
+#source("set_up_data_calculate_means.R")
+load("data/data_with_means_semi_clean.RData")
+
+df$sex3 <- as.factor(df$sex1)
+df$sex3 <- dplyr::recode(df$sex3,
+               "1"="male"
+              ,"2"="female"
+              ,"3"="other")
+
+df$country_lower <- tolower(df$country)
+df$country_name <- countrycode(df$ISO3, origin = "iso3c", destination = "country.name")
+
+
+x <- df
+```
+
+
+
+```{r}
+
+
+# h3a yes
+# h3b n/a (competing)
+# h3c yes
+# h3d no (no relationship)
+# h3e yes
+# h3f yes
+# h3g no, no, yes
+
+
+x <- x[which(is.na(x$moral_identity_symbolic)==FALSE),]
+
+
+fit <- lm(moral_identity_symbolic ~
+                    # sex3
+                    # + age
+                     Power.Distance
+                    + Individualism
+                    + Masculinity
+                    + Uncertainty.Avoidance
+                    + Long.Term.Orientation
+                    + Indulgence
+                    + CTL_DG
+                    + CTL_DS
+                    + CTL_C
+                , data = x
+            )
+fit
+fit_results <- summary(fit)
+fit_results
+
+fit_results$adj.r.squared
+anova(fit)
+apa_fit_results <- apa_print(fit)
+
+cor.test(x$Power.Distance,x$moral_identity_symbolic)
+
+apa_fit_results$full_result$modelfit$r2
+fit$qr
+apa_fit_results$table
+results_for_table <- apa_fit_results$table
+
+estimate_for_table <-
+  `colnames<-`(
+    cbind.data.frame(
+      unlist(fit_results$coefficients[,1])
+      ,names(unlist(fit_results$coefficients[,1]))
+    ), c("estimate","rows"))$estimate
+
+stderror_for_table <-
+  `colnames<-`(
+    cbind.data.frame(
+      unlist(fit_results$coefficients[,2])
+      ,names(unlist(fit_results$coefficients[,2]))
+    ), c("stderror","rows"))$stderror
+
+
+estimate_for_table
+stderror_for_table
+
+
+results_for_table$estimate <- estimate_for_table
+results_for_table$StdError <- stderror_for_table
+
+results_for_table <- results_for_table[c(1,2,7,3,4,5,6)]
+
+
+
+results_for_table$estimate <- sprintf("%.3f", results_for_table$estimate)
+results_for_table$StdError <- sprintf("%.3f", results_for_table$StdError)
+
+# library(Hmisc)
+# 
+# var.labels = 
+#   c(
+#     term        = "Predictor" 
+#     , "estimate"  = "$b$" 
+#     , "StdError"  = "$S.E.$"
+#     , conf.int  = "95\\% CI" 
+#     , statistic = "$t$" 
+#     , df        = "$\\mathit{df}$" 
+#     , p.value   = "$p$" 
+#     )
+# 
+# label(results_for_table) = as.list(var.labels[match(names(results_for_table), names(var.labels))])
+
+
+results_for_table$term <- c(
+  "Intercept"
+  ,"Power Distance"
+  ,"Individualism"
+  ,"Masculinity"
+  ,"Uncertainty Avoidance"
+  ,"Long Term Orientation"
+  ,"Indulgence"
+  ,"Tightness: Domain General"
+  ,"Tightness: Domain Specific"
+  ,"Tightness: Combination Measure"
+)
+
+
+variable_label(results_for_table$estimate) <- "$b$"
+variable_label(results_for_table$StdError) <- "$S.E.$"
+variable_label(results_for_table$term) <- "Predictor"
+
+
+
+```
+
+
+
+```{r}
+
+
+# h3a yes
+# h3b n/a (competing)
+# h3c yes
+# h3d no (no relationship)
+# h3e yes
+# h3f yes
+# h3g no, no, yes
+
+
+x <- x[which(is.na(x$moral_identity_symbolic)==FALSE),]
+
+
+fit <- lm(moral_identity_symbolic ~
+                    # sex3
+                    # + age
+                     Power.Distance
+                    + Individualism
+                    + Masculinity
+                    + Uncertainty.Avoidance
+                    + Long.Term.Orientation
+                    + Indulgence
+                    + CTL_DG
+                    + CTL_DS
+                    + CTL_C
+                , data = x
+            )
+
+fit_results <- summary(fit)
+fit_results$adj.r.squared
+anova(fit)
+apa_fit_results <- apa_print(fit)
+
+cor.test(x$Power.Distance,x$moral_identity_symbolic)
+
+apa_fit_results$full_result$modelfit$r2
+fit$qr
+apa_fit_results$table
+results_for_table <- apa_fit_results$table
+
+estimate_for_table <-
+  `colnames<-`(
+    cbind.data.frame(
+      unlist(fit_results$coefficients[,1])
+      ,names(unlist(fit_results$coefficients[,1]))
+    ), c("estimate","rows"))$estimate
+
+stderror_for_table <-
+  `colnames<-`(
+    cbind.data.frame(
+      unlist(fit_results$coefficients[,2])
+      ,names(unlist(fit_results$coefficients[,2]))
+    ), c("stderror","rows"))$stderror
+
+
+estimate_for_table
+stderror_for_table
+
+
+results_for_table$estimate <- estimate_for_table
+results_for_table$StdError <- stderror_for_table
+
+results_for_table <- results_for_table[c(1,2,7,3,4,5,6)]
+
+
+
+results_for_table$estimate <- sprintf("%.3f", results_for_table$estimate)
+results_for_table$StdError <- sprintf("%.3f", results_for_table$StdError)
+
+# library(Hmisc)
+# 
+# var.labels = 
+#   c(
+#     term        = "Predictor" 
+#     , "estimate"  = "$b$" 
+#     , "StdError"  = "$S.E.$"
+#     , conf.int  = "95\\% CI" 
+#     , statistic = "$t$" 
+#     , df        = "$\\mathit{df}$" 
+#     , p.value   = "$p$" 
+#     )
+# 
+# label(results_for_table) = as.list(var.labels[match(names(results_for_table), names(var.labels))])
+
+
+results_for_table$term <- c(
+  "Intercept"
+  ,"Power Distance"
+  ,"Individualism"
+  ,"Masculinity"
+  ,"Uncertainty Avoidance"
+  ,"Long Term Orientation"
+  ,"Indulgence"
+  ,"Tightness: Domain General"
+  ,"Tightness: Domain Specific"
+  ,"Tightness: Combination Measure"
+)
+
+
+variable_label(results_for_table$estimate) <- "$b$"
+variable_label(results_for_table$StdError) <- "$S.E.$"
+variable_label(results_for_table$term) <- "Predictor"
+
+
+
+```
+
+Our third hypothesis predicted relationships between symbolization and specific cultural variables. The variables question are: power distance, individualism, masculinity, uncertainty avoidance, long term orientation, and indulgence, taken from Hofstede (2001), as well as three measures of cultural tightness (domain-specific, domain-general, and a combination index). These variables were inputted at the country level, and as such, we conducted a hierarchical linear regression model to investigate relationship with symbolization. Symbolization was our outcome measure and each cultural variable was included as a predictor in the model.
+
+Overall the model was a significant predictor of symbolization `r apa_fit_results$full_result$modelfit$r2`. The full regression results are displayed in Table\ \@ref(tab:regressionTable).
+
+```{r regressionTable, include=TRUE}
+apa_table(
+  results_for_table
+#  , align = c("c", "c", "c")
+  , caption = "Full Regression Results for each country level variable predicting symbolization"
+  )
+
+```
+
+In line with H3a greater power distance was associated with higher symbolization scores.
+
+We proposed two competing hypotheses for the relationship between symbolization and symbolization. H3b~1~ predicted that symbolization would be negatively related to individualism (i.e., higher symbolization would be observed in more collectivist cultures). H3b~2~ predicted that individualism and symbolization would be positively associated. Our results support H3b~2~ (over H3b~1~), suggesting that members of more individualistic societies show greater symbolization scores.
+
+We predicted that members of more masculine cultures would score higher in symbolization (H3c). Our results were in line with this prediction.
+
+For H3d we predicted that uncertainty avoidance would be related to higher symbolization. This was not supported, and we found no relationship between symbolization and uncertainty avoidance.
+
+We predicted a negative association between long-term orientation and symbolization (H3e), that is, we expected participants in societies showing greater long-term orientation to present with lower symbolization scores. Our results supported this hypothesis.
+
+Regarding indulgence/restraint, we predicted (H3f) that greater indulgence would be related to higher symbolization scores, and this hypothesis was supported.
+
+We employed measures of three dimensions of cultural tightness, domain-general, domain-specific, and combination, and predicted that symbolization would be positively associated with each dimension. Our hypothesis was supported for only one dimension (domain-general). Interestingly, both domain-specific and combination dimensions of cultural tightness were negatively related to symbolization.
+
+
+

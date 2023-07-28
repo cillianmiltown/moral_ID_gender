@@ -1,0 +1,239 @@
+---
+title: "H4: Cultural Differences in Internalization"
+author: "Mariola Paruzel-Czachura, Cillian McHugh"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+bibliography: "resources/bib/My Library.bib"
+csl: "resources/bib/apa.csl"
+output:
+  bookdown::html_document2:
+    fig_caption: yes
+    toc: true
+    toc_float:
+      toc_collapsed: false
+    toc_depth: 4
+    number_sections: false
+editor_options: 
+  chunk_output_type: console
+---
+
+<style>
+  .superbigimage{
+      overflow-x:scroll;
+      white-space: nowrap;
+  }
+
+  .superbigimage img{
+     max-width: none;
+  }
+
+
+</style>
+
+
+```{r setuph4, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(include = FALSE)
+```
+
+
+```{r}
+rm(list = ls())
+library(tidyverse)
+library(plyr)
+library(psych)
+library(skimr)
+library(corrplot)
+library(Hmisc)
+#library(psy)
+library(afex)
+#devtools::install_github("cillianmiltown/R_desnum")
+library(desnum)
+library(papaja)
+library(purrr)
+#install.packages("interactions")
+library(interactions)
+library(kableExtra)
+#devtools::install_github("crsh/papaja")
+library("papaja")
+library(lme4)
+library(car)
+library(ggplot2)
+library(nlme)
+#install.packages("reshape")
+library(reshape)
+library(corx)
+library(lsr)
+#install.packages("Cairo")
+#library(Cairo)
+library(foreign)
+library(ltm)
+library("ggpubr")
+#install.packages("rworldmap")
+library(rworldmap)
+#devtools::install_github("rensa/ggflags")
+library(ggflags)
+#devtools::install_github("schliebs/ggoxford")
+library(ggoxford)
+library(ggforce)
+library(ggbeeswarm)
+library(countrycode)
+```
+
+
+
+```{r}
+rm(list = ls())
+
+#source("set_up_data_calculate_means.R")
+load("data/data_with_means_semi_clean.RData")
+
+df$sex3 <- as.factor(df$sex1)
+df$sex3 <- dplyr::recode(df$sex3,
+               "1"="male"
+              ,"2"="female"
+              ,"3"="other")
+
+df$country_lower <- tolower(df$country)
+df$country_name <- countrycode(df$ISO3, origin = "iso3c", destination = "country.name")
+
+
+x <- df
+```
+
+
+```{r}
+
+
+# h3a yes
+# h3b n/a (competing)
+# h3c yes
+# h3d no (no relationship)
+# h3e yes
+# h3f yes
+# h3g no, no, yes
+
+
+x <- x[which(is.na(x$moral_identity_internal)==FALSE),]
+
+
+fit <- lm(moral_identity_internal ~
+                    # sex3
+                    # + age
+                     Power.Distance
+                    + Individualism
+                    + Masculinity
+                    + Uncertainty.Avoidance
+                    + Long.Term.Orientation
+                    + Indulgence
+                    + CTL_DG
+                    + CTL_DS
+                    + CTL_C
+                , data = x
+            )
+
+fit_results <- summary(fit)
+fit_results$adj.r.squared
+anova(fit)
+apa_fit_results <- apa_print(fit)
+
+cor.test(x$Power.Distance,x$moral_identity_internal)
+
+apa_fit_results$full_result$modelfit$r2
+fit$qr
+apa_fit_results$table
+results_for_table <- apa_fit_results$table
+
+estimate_for_table <-
+  `colnames<-`(
+    cbind.data.frame(
+      unlist(fit_results$coefficients[,1])
+      ,names(unlist(fit_results$coefficients[,1]))
+    ), c("estimate","rows"))$estimate
+
+stderror_for_table <-
+  `colnames<-`(
+    cbind.data.frame(
+      unlist(fit_results$coefficients[,2])
+      ,names(unlist(fit_results$coefficients[,2]))
+    ), c("stderror","rows"))$stderror
+
+
+estimate_for_table
+stderror_for_table
+
+
+results_for_table$estimate <- estimate_for_table
+results_for_table$StdError <- stderror_for_table
+
+results_for_table <- results_for_table[c(1,2,7,3,4,5,6)]
+
+
+
+results_for_table$estimate <- sprintf("%.3f", results_for_table$estimate)
+results_for_table$StdError <- sprintf("%.3f", results_for_table$StdError)
+
+# library(Hmisc)
+# 
+# var.labels = 
+#   c(
+#     term        = "Predictor" 
+#     , "estimate"  = "$b$" 
+#     , "StdError"  = "$S.E.$"
+#     , conf.int  = "95\\% CI" 
+#     , statistic = "$t$" 
+#     , df        = "$\\mathit{df}$" 
+#     , p.value   = "$p$" 
+#     )
+# 
+# label(results_for_table) = as.list(var.labels[match(names(results_for_table), names(var.labels))])
+
+
+results_for_table$term <- c(
+  "Intercept"
+  ,"Power Distance"
+  ,"Individualism"
+  ,"Masculinity"
+  ,"Uncertainty Avoidance"
+  ,"Long Term Orientation"
+  ,"Indulgence"
+  ,"Tightness: Domain General"
+  ,"Tightness: Domain Specific"
+  ,"Tightness: Combination Measure"
+)
+
+
+variable_label(results_for_table$estimate) <- "$b$"
+variable_label(results_for_table$StdError) <- "$S.E.$"
+variable_label(results_for_table$term) <- "Predictor"
+
+
+
+```
+
+We did not make specific predictions regarding the relationship between internalization and the selected cultural variables. As such, the analyses below are exploratory. We conducted a regression analysis to investigate the relationship bewteen these cultural variables and internalization. We entered internalization as our outcome measure and included each of power distance, individualism, masculinity, uncertainty avoidance, long term orientation, and indulgence, and the three dimensions of cultural tightness (domain-specific, domain-general, and a combination index) as predictor variables.
+
+Overall the model was a significant predictor of internalization `r apa_fit_results$full_result$modelfit$r2`. The full regression results are displayed in Table\ \@ref(tab:regressionTable2).
+
+```{r regressionTable2, include=TRUE}
+apa_table(
+  results_for_table
+#  , align = c("c", "c", "c")
+  , caption = "Full Regression Results for each country level variable predicting internalization"
+  )
+
+```
+
+In contrast to symbolization, power distance was negatively related to internalization.
+
+Similarly, individualism showed a negative relationship with internalization.
+
+Masculinity was unrelated to internalization.
+
+Uncertainty avoidance and long-term orientation were both negatively related to internalization.
+
+Indulgence was positively related to internalization.
+
+Regarding cultural tightness, both domain genera, and the combination measure were both positively related to internalization, while domain specific tightness was negatively related to internalization.
+
+
+

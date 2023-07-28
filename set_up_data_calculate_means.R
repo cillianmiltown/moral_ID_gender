@@ -19,6 +19,14 @@ library(foreign)
 rm(list = ls())
 getwd()
 df <- read.csv("../data/ICSMP_cleaned_data.csv")
+#many_labs_COVID_data <- read_sav("/media/cillian/intel250G/Home/OneDrive - University of Limerick/Teaching/PS4033_PS6112_research_methods/2023/assessment/22_23/Assignment/many_labs_COVID_data.sav")
+
+#test <- dplyr::sample_n(df, 500)
+#test1 <- test %>% select(variable.names(many_labs_COVID_data))
+
+#many_labs_COVID_data_REPEAT <- test1
+
+#write_sav(many_labs_COVID_data_REPEAT, "/media/cillian/intel250G/Home/OneDrive - University of Limerick/Teaching/PS4033_PS6112_research_methods/2023/assessment/22_23/Assignment/many_labs_COVID_data_REPEAT.sav")
 
 #### moral identity internal alpha and combine ####
 
