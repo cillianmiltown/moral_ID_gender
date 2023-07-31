@@ -63,4 +63,17 @@ levels(as.factor(df$country_name[which(is.na(df$CTL_DS))]))
 levels(as.factor(df$country_name[which(is.na(df$CTL_C))]))
 
 
+#### Countries with Cultural variables ####
+
+levels(as.factor(df$country_name[which(is.na(df$Power.Distance)==FALSE)]))
+levels(as.factor(df$country_name[which(is.na(df$Individualism)==FALSE)]))
+levels(as.factor(df$country_name[which(is.na(df$Masculinity)==FALSE)]))
+levels(as.factor(df$country_name[which(is.na(df$Uncertainty.Avoidance)==FALSE)]))
+levels(as.factor(df$country_name[which(is.na(df$Long.Term.Orientation)==FALSE)]))
+levels(as.factor(df$country_name[which(is.na(df$Indulgence)==FALSE)]))
+levels(as.factor(df$country_name[which(is.na(df$CTL_DG)==FALSE)]))
+levels(as.factor(df$country_name[which(is.na(df$CTL_DS)==FALSE)]))
+levels(as.factor(df$country_name[which(is.na(df$CTL_C)==FALSE)]))
+
+
 

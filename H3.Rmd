@@ -198,11 +198,11 @@ results_for_table$term <- c(
   ,"Individualism"
   ,"Masculinity"
   ,"Uncertainty Avoidance"
-  ,"Long Term Orientation"
-  ,"Indulgence"
-  ,"Tightness: Domain General"
-  ,"Tightness: Domain Specific"
-  ,"Tightness: Combination Measure"
+  # ,"Long Term Orientation"
+  # ,"Indulgence"
+  # ,"Tightness: Domain General"
+  # ,"Tightness: Domain Specific"
+  # ,"Tightness: Combination Measure"
 )
 
 
@@ -245,6 +245,24 @@ fit <- lm(moral_identity_symbolic ~
                     + CTL_C
                 , data = x
             )
+
+
+# fit <- lm(moral_identity_symbolic ~
+#                      age
+#                     + sex3
+#                     #+ age
+#                     * (Power.Distance
+#                     + Individualism
+#                     + Masculinity
+#                     + Uncertainty.Avoidance
+#                     + Long.Term.Orientation
+#                     + Indulgence
+#                     + CTL_DG
+#                     + CTL_DS
+#                     + CTL_C)
+#                 , data = x
+#             )
+
 
 fit_results <- summary(fit)
 fit_results$adj.r.squared

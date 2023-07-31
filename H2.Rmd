@@ -259,11 +259,31 @@ sum(unlist(ps_for_table)<.05)
 test1 <- subset(test, p < .05)
 test1
 
+
+rownames(subset(test, p < .05))
+
 total_sig <- length(test1$`mean age`)
 
 neg <- sum(test1$r <0 )
 pos <- sum(test1$r>0)
+neg
 
+noquote(paste0(rownames(test1[which(test1$r<0),]),sep=", "))
+noquote(paste0(rownames(test1[which(test1$r>0),]),sep=", "))
+
+neg_names <- rownames(test1[which(test1$r<0),])
+neg_names_first <- c(paste0(neg_names[1:(length(neg_names)-1)], sep = ", "))
+neg_names_end <- c("and " , neg_names[length(neg_names)])
+noquote(c(neg_names_first, neg_names_end))
+
+pos_names <- rownames(test1[which(test1$r>0),])
+pos_names_first <- c(paste0(pos_names[1:(length(pos_names)-1)], sep = ", "))
+pos_names_end <- c("and " , pos_names[length(pos_names)])
+noquote(c(pos_names_first, pos_names_end))
+
+
+
+test1$r>0
 
 ```
 
@@ -279,7 +299,7 @@ with a significant positive association between age and internalization scores, 
 *t*(`r sprintf("%.2f",results_coef$df[2])`) = 
 `r sprintf("%.2f",t1)`,
 *p* `r paste(p_report(p2))`.
-To interpret this we conducted a series of bivariate correlations to test if age was related to internalization across all countries.  There was a significant correlation between age and internalization in `r total_sig` countries. Of these, there was a positive correlation between age and internalization in `r pos` countries, and a negative correlation in `r neg` countries (see Supplementary Materials [Table S_X](https://cillianmiltown.github.io/moral_ID_gender/drafting_supplementary_analysis.html#Age__Internalization)).
+To interpret this we conducted a series of bivariate correlations to test if age was related to internalization across all countries.  There was a significant correlation between age and internalization in `r total_sig` countries. Of these, there was a positive correlation between age and internalization in `r pos` countries, and a negative correlation in `r neg` countries. The countries with a positive correlation were `r noquote(paste0(c(pos_names_first, pos_names_end), collapse = ""))`, and the countries with a negative correlation were `r noquote(paste0(c(neg_names_first, neg_names_end), collapse = ""))`  (see Supplementary Materials [Table S_X](https://cillianmiltown.github.io/moral_ID_gender/drafting_supplementary_analysis.html#Age__Internalization)).
 
 
 ```{r}
@@ -422,6 +442,23 @@ neg <- sum(test1$r <0 )
 pos <- sum(test1$r>0)
 
 
+neg_names <- rownames(test1[which(test1$r<0),])
+neg_names_first <- c(paste0(neg_names[1:(length(neg_names)-1)], sep = ", "))
+neg_names_end <- c("and " , neg_names[length(neg_names)])
+noquote(c(neg_names_first, neg_names_end))
+
+pos_names <- rownames(test1[which(test1$r>0),])
+pos_names_first <- c(paste0(pos_names[1:(length(pos_names)-1)], sep = ", "))
+pos_names_end <- c("and " , pos_names[length(pos_names)])
+print(noquote(c(pos_names_first, pos_names_end)))
+toString(noquote(paste0(c(pos_names_first, pos_names_end), collapse = "")))
+help("toString")
+
+toString(paste0(pos_names_first,collapse = ""))
+
+noquote(paste0(c(pos_names_first, pos_names_end), collapse = ""))
+noquote(paste0(c(neg_names_first, neg_names_end), collapse = ""))
+
 ```
 
 
@@ -431,8 +468,8 @@ $\chi$^2^(`r results_anova$Df[2]`) = `r sprintf("%.2f",results_anova$Chisq[2])`,
 There was a significant main effect for age,
 *F*(`r aov1$NumDF[1]`, `r sprintf("%.2f",round(aov1$DenDF[1],digits=2))`) = 
 `r sprintf("%.2f",f3a)`, *p* `r paste(p_report(p3a))`;
-with a significant positive association between age and internalization scores, $b$ = `r sprintf("%.3f",results_coef$Estimate[2])`,
+with a significant positive association between age and symbolization scores, $b$ = `r sprintf("%.3f",results_coef$Estimate[2])`,
 *t*(`r sprintf("%.2f",results_coef$df[2])`) = 
 `r sprintf("%.2f",t1)`,
 *p* `r paste(p_report(p2))`.
-Again, to interpret this, we conducted a series of correlations to test if age was related to internalization across all countries.  There was a significant correlation between age and internalization in `r total_sig` countries. Of these, there was a positive correlation between age and internalization in `r pos` countries, and a negative correlation in `r neg` countries (see Supplementary Materials [Table S_X](https://cillianmiltown.github.io/moral_ID_gender/drafting_supplementary_analysis.html#Age__Symbolization)).
+Again, to interpret this, we conducted a series of correlations to test if age was related to symbolization across all countries.  There was a significant correlation between age and symbolization in `r total_sig` countries. Of these, there was a positive correlation between age and symbolization in `r pos` countries, and a negative correlation in `r neg` countries. The countries with a positive correlation were `r noquote(paste0(c(pos_names_first, pos_names_end), collapse = ""))`, and the countries with a negative correlation were `r noquote(paste0(c(neg_names_first, neg_names_end), collapse = ""))` (see Supplementary Materials [Table S_X](https://cillianmiltown.github.io/moral_ID_gender/drafting_supplementary_analysis.html#Age__Symbolization)).

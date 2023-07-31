@@ -431,8 +431,8 @@ $\chi$^2^(`r results_anova$Df[2]`) = `r sprintf("%.2f",results_anova$Chisq[2])`,
 There was a significant main effect for age,
 *F*(`r aov1$NumDF[1]`, `r sprintf("%.2f",round(aov1$DenDF[1],digits=2))`) = 
 `r sprintf("%.2f",f3a)`, *p* `r paste(p_report(p3a))`;
-with a significant positive association between age and internalization scores, $b$ = `r sprintf("%.3f",results_coef$Estimate[2])`,
+with a significant positive association between age and symbolization scores, $b$ = `r sprintf("%.3f",results_coef$Estimate[2])`,
 *t*(`r sprintf("%.2f",results_coef$df[2])`) = 
 `r sprintf("%.2f",t1)`,
 *p* `r paste(p_report(p2))`.
-Again, to interpret this, we conducted a series of correlations to test if age was related to internalization across all countries.  There was a significant correlation between age and internalization in `r total_sig` countries. Of these, there was a positive correlation between age and internalization in `r pos` countries, and a negative correlation in `r neg` countries (see Supplementary Materials [Table S_X](https://cillianmiltown.github.io/moral_ID_gender/drafting_supplementary_analysis.html#Age__Symbolization)).
+Again, to interpret this, we conducted a series of correlations to test if age was related to symbolization across all countries.  There was a significant correlation between age and symbolization in `r total_sig` countries. Of these, there was a positive correlation between age and symbolization in `r pos` countries, and a negative correlation in `r neg` countries (see Supplementary Materials [Table S_X](https://cillianmiltown.github.io/moral_ID_gender/drafting_supplementary_analysis.html#Age__Symbolization)).

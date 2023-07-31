@@ -84,6 +84,7 @@ library(countrycode)
 
 #source("set_up_data_calculate_means.R")
 load("data/data_with_means.RData")
+#load("data/data_with_means_semi_clean.RData")
 
 df$sex3 <- as.factor(df$sex1)
 df$sex3 <- dplyr::recode(df$sex3,
@@ -192,7 +193,10 @@ test <-
     ,round(do.call(rbind,sd_int_for_table),digits = 2)
     ,round(do.call(rbind, Ns_for_table))
     ,round(do.call(rbind, rs_for_table),digits=3)
-    ,do.call(rbind, ps_output_for_table)
+    ,do.call(rbind
+             , ps_output_for_table
+             #, ps_for_table
+             )
     )
 
 test <- `colnames<-`(test, c("mean age","SD age","mean internalization", "SD internalization","N", "r","p"))
@@ -202,6 +206,9 @@ sum(unlist(ps_for_table)<.05)
 
 test1 <- subset(test, p < .05)
 test1
+test2 <- subset(test1, r < 0)
+
+test2
 
 total_sig <- length(test1$`mean age`)
 
@@ -239,6 +246,8 @@ P_R <-
 
 test <- rbind(test[1:49,],P_R,test[50:length(test$p),])
 test <- test[order(rownames(test) ),]
+
+test[which(test$p<.05),]
 
 ```
 
