@@ -374,6 +374,15 @@ sum(unlist(lapply(all_t_tests, all_t_ps))<.05)
 
 test1 <- subset(test, p < .05)
 
+test2 <- subset(test, p > .05)
+test2
+
+
+
+
+int_sig_pos <- test1[which(test1$`mean F`>test1$`mean M`),] # subset(test1, d > 0)
+int_sig_neg <- test1[which(test1$`mean F`<test1$`mean M`),] # subset(test1, d < 0)
+int_non_sig <- test2
 
 neg <- sum(test1$`mean F`<test1$`mean M`)
 pos <- sum(test1$`mean F`>test1$`mean M`)
@@ -598,6 +607,14 @@ sum(unlist(lapply(all_t_tests, all_t_ps))<.05)
 
 
 test1 <- subset(test, p < .05)
+
+
+test2 <- subset(test, p > .05)
+test2
+
+symb_sig_pos <- test1[which(test1$`mean F`>test1$`mean M`),] # subset(test1, d > 0)
+symb_sig_neg <- test1[which(test1$`mean F`<test1$`mean M`),] # subset(test1, d < 0)
+symb_non_sig <- test2
 
 
 neg <- sum(test1$`mean F`<test1$`mean M`)

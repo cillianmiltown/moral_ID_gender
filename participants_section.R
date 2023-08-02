@@ -17,8 +17,8 @@ table(df$sex3)
 sum(is.na(df$sex3))
 
 desnum::descriptives(df$age)
-
-
+df_full <- df
+rm(df)
 rm(list = ls())
 #source("set_up_data_calculate_means.R")
 load("data/data_with_means.RData")
@@ -38,9 +38,30 @@ sum(is.na(df$sex3))
 
 desnum::descriptives(df$age)
 
+
+x <- df_full
+
 table(x$country_name)
+country_Ns_full <- table(x$country_name)
 country_Ns <- table(x$country_name)
 
+
+cbind(country_Ns,country_Ns_full)
+
+cbind(
+  rownames(country_Ns)
+  ,rownames(country_Ns_full)
+)
+
+country_full_names <- rownames(country_Ns_full)
+country_names <- rownames(country_Ns)
+
+sum(country_full_names %in% country_names)
+
+country_full_names[which(!(country_full_names %in% country_names))]
+Ghana <- df_full[which(df_full$country_name=="Ghana"),]
+
+df$country_name
 
 table(x$country_name)
 country_Ns <- table(x$country_name)

@@ -265,3 +265,132 @@ length(levels(as.factor(df$country_name[which(is.na(df$CTL_C==0)==FALSE)])))
 
 x <- x %>% group_by(country_name) %>% do(data = (.)) %>% with( set_names(data, country_name) )
 
+
+
+#### internalization / symbolization consistency across countries ####
+
+
+symb_sig
+symb_non_sig
+
+int_sig
+int_non_sig
+
+
+sum(rownames(symb_sig_pos) %in% rownames(int_sig_pos))
+sum(rownames(int_non_sig) %in% rownames(int_non_sig))
+
+sum(rownames(symb_sig_pos) %in% rownames(int_non_sig))
+sum(rownames(int_sig_pos) %in% rownames(symb_non_sig))
+
+sum(rownames(symb_sig_neg) %in% rownames(int_non_sig))
+sum(rownames(int_sig_neg) %in% rownames(symb_non_sig))
+
+sum(rownames(symb_sig_neg) %in% rownames(int_sig_pos))
+sum(rownames(int_sig_neg) %in% rownames(symb_sig_pos))
+
+
+rownames(symb_sig_pos[which(rownames(symb_sig_pos) %in% rownames(int_sig_pos)),])
+rownames(int_non_sig[which(rownames(int_non_sig) %in% rownames(symb_non_sig)),])
+
+rownames(symb_sig_pos[which(rownames(symb_sig_pos) %in% rownames(int_non_sig)),])
+rownames(int_sig_pos[which(rownames(int_sig_pos) %in% rownames(symb_non_sig)),])
+
+rownames(symb_sig_neg[which(rownames(symb_sig_neg) %in% rownames(int_non_sig)),])
+rownames(int_sig_neg[which(rownames(int_sig_neg) %in% rownames(symb_non_sig)),])
+rownames(symb_sig_neg[which(rownames(symb_sig_neg) %in% rownames(int_sig_pos)),])
+rownames(int_sig_neg[which(rownames(int_sig_neg) %in% rownames(symb_sig_pos)),])
+
+consistent <- c(
+  rownames(symb_sig_pos[which(rownames(symb_sig_pos) %in% rownames(int_sig_pos)),])
+  , rownames(int_non_sig[which(rownames(int_non_sig) %in% rownames(symb_non_sig)),])
+)
+
+#consistent %in%
+rownames(test)[which(rownames(test) %in% consistent==FALSE)]
+
+
+rownames(symb_sig_pos[which(rownames(symb_sig_pos) %in% rownames(int_sig_pos)),])
+
+21+23
+67-44
+
+table(df$Masculinity)
+table(df$country_name)
+
+#### same as above without rownames (for the age) ####
+
+
+symb_sig_pos
+symb_sig_neg
+symb_non_sig
+
+
+int_sig_pos
+int_sig_neg
+int_non_sig
+
+
+
+length(symb_sig_pos)
+length(symb_sig_neg)
+length(symb_non_sig)
+
+
+length(int_sig_pos)
+length(int_sig_neg)
+length(int_non_sig)
+
+sum(symb_sig_pos %in% int_sig_pos)
+sum(int_sig_pos %in% symb_sig_pos)
+
+sum(int_non_sig %in% int_non_sig)
+sum(int_non_sig %in% symb_non_sig==FALSE)
+sum(symb_non_sig %in% int_non_sig==FALSE)
+
+sum(int_sig_neg %in% symb_sig_neg)
+sum(int_sig_neg %in% symb_sig_neg==FALSE)
+int_sig_neg[which(int_sig_neg %in% symb_sig_neg==FALSE)]
+
+
+
+sum(symb_sig_pos %in% int_non_sig)
+sum(int_sig_pos %in% symb_non_sig)
+
+sum(symb_sig_neg %in% int_non_sig)
+sum(int_sig_neg %in% symb_non_sig)
+
+sum(symb_sig_neg %in% int_sig_pos)
+sum(int_sig_neg %in% symb_sig_pos)
+
+
+symb_sig_pos[which(symb_sig_pos %in% int_sig_pos)]
+int_non_sig[which(int_non_sig %in% symb_non_sig)]
+symb_sig_neg[which(symb_sig_neg %in% int_sig_neg)]
+
+
+
+symb_sig_pos[which(symb_sig_pos %in% int_non_sig)]
+int_sig_pos[which(int_sig_pos %in% symb_non_sig)]
+
+symb_sig_neg[which(symb_sig_neg %in% int_non_sig)]
+int_sig_neg[which(int_sig_neg %in% symb_non_sig)]
+symb_sig_neg[which(symb_sig_neg %in% int_sig_pos)]
+int_sig_neg[which(int_sig_neg %in% symb_sig_pos)]
+
+consistent <- c(
+  rownames(symb_sig_pos[which(rownames(symb_sig_pos) %in% rownames(int_sig_pos)),])
+  , rownames(int_non_sig[which(rownames(int_non_sig) %in% rownames(symb_non_sig)),])
+)
+
+#consistent %in%
+rownames(test)[which(rownames(test) %in% consistent==FALSE)]
+
+
+rownames(symb_sig_pos[which(rownames(symb_sig_pos) %in% rownames(int_sig_pos)),])
+
+
+
+
+
+

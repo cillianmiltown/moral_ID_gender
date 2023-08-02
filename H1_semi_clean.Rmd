@@ -237,14 +237,20 @@ anova(model1)
 x <- df[which(df$sex3=="male"|df$sex3=="female"),]
 x$sex3 <- droplevels(x$sex3)
 
+
+
 #### remove any missing data #### 
 sum(is.na(x$moral_identity_internal))
 x <- x[which(is.na(x$moral_identity_internal)==FALSE),]
 table(x$country_name,x$sex3)
 x$country_name
 
+
+
 #### group by country ####
 x <- x %>% group_by(country_name) %>% do(data = (.)) %>% with( set_names(data, country_name) )
+
+
 
 #### identify countries with small samples
 male_length <- function(x){sum(x$sex3=='male')}
@@ -260,6 +266,9 @@ exclusions <- c(names(males[males<2]),
 #### re-load ungrouped data ####
 x <- df[which(df$sex3=="male"|df$sex3=="female"),]
 x$sex3 <- droplevels(x$sex3)
+x$sex_01 <-  dplyr::recode(x$sex3,
+               "male"="0"
+              ,"female"="1")
 
 # and remove missing again
 sum(is.na(x$moral_identity_internal))
@@ -270,6 +279,19 @@ x <- subset(x, !(country_name %in% exclusions))
 
 #### group by country for analysis ####
 x <- x %>% group_by(country_name) %>% do(data = (.)) %>% with( set_names(data, country_name) )
+
+regression_fun <- function(x){
+  fit <- lm(moral_identity_internal~sex_01+age, data = x)
+  summary(fit)
+}
+
+
+all_regressions <- lapply(x, regression_fun)
+all_regression_ps <- function(y){
+  y$coefficients[11]
+}
+lapply(all_regressions, all_regression_ps)
+regression_ps_for_table <- lapply(lapply(all_regressions, all_regression_ps), p_report)
 
 ttest_fun <- function(x){
   t.test(moral_identity_internal ~ sex3, data = x)
@@ -347,7 +369,8 @@ x <- x %>% group_by(country_name) %>% do(data = (.)) %>% with( set_names(data, c
 female_means <- lapply(x, means_fun)
 female_sds <- lapply(x, sd_fun)
 
-
+mean(df$moral_identity_internal,na.rm=T)
+mean(df$moral_identity_symbolic,na.rm=T)
 
 ```
 
@@ -365,6 +388,23 @@ test <-
     ,do.call(rbind, raw_ps_for_table)
     ,round(do.call(rbind, ds_for_table),digits=2)
     )
+
+test_with_regression <- 
+  cbind.data.frame(
+     round(do.call(rbind, female_means),digits=2)
+    ,round(do.call(rbind, female_sds),digits=2)
+    ,round(do.call(rbind, male_means),digits=2)
+    ,round(do.call(rbind, female_sds),digits=2)
+    ,round(do.call(rbind, ts_for_table),digits=2)
+    ,round(do.call(rbind, df_for_table),digits=2)
+    ,do.call(rbind, ps_for_table)
+    ,do.call(rbind, regression_ps_for_table)
+    ,round(do.call(rbind, ds_for_table),digits=2)
+    )
+
+
+test_with_regression <- `colnames<-`(test_with_regression, c("mean F","SD F","mean M", "SD M", "t","df","p","p2","d"))
+test_with_regression
 
 test <- `colnames<-`(test, c("mean F","SD F","mean M", "SD M", "t","df","p","d"))
 test
